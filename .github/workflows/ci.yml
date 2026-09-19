@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: ["*"]
+    branches: ["**"]
     tags: ["*"]
   pull_request:
   workflow_dispatch:
@@ -94,3 +94,72 @@ jobs:
             ${{ matrix.cc }} --version
             ./tools/ci-build.sh CC=${{ matrix.cc }} --cores=2
             make check
+
+  windows_mingw:
+    name: Windows MinGW / ${{ matrix.arch }} / ${{ matrix.compiler }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            compiler: gcc
+            runner: windows-2025
+            msys_subsystem: UCRT64
+            CC: /c/mingw64/bin/x86_64-w64-mingw32-gcc
+            AR: /c/mingw64/bin/x86_64-w64-mingw32-gcc-ar
+          - arch: i686
+            compiler: gcc
+            runner: windows-2025
+            msys_subsystem: MINGW32
+            CC: /c/mingw32/bin/i686-w64-mingw32-gcc
+            AR: /c/mingw32/bin/i686-w64-mingw32-gcc-ar
+          - arch: aarch64
+            compiler: clang
+            runner: windows-11-arm
+            msys_subsystem: CLANGARM64
+            CC: $LLVM_MINGW_ROOT/bin/aarch64-w64-mingw32-clang
+            AR: $LLVM_MINGW_ROOT/bin/aarch64-w64-mingw32-llvm-ar
+    defaults:
+      run:
+        shell: c:\shells\msys2bash.cmd {0}
+    env:
+      MSYSTEM: ${{ matrix.msys_subsystem }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install build and runtime dependencies
+        run: |
+          pacman -Sy --noconfirm --needed \
+            make \
+            mingw-w64-ucrt-x86_64-libwinpthread \
+            mingw-w64-i686-libwinpthread \
+            mingw-w64-clang-aarch64-libwinpthread
+
+      - name: Fetch llvm-mingw toolchain
+        if: ${{ matrix.arch == 'aarch64' }}
+        env:
+          LLVM_MINGW_URL: https://github.com/mstorsjo/llvm-mingw/releases/download/20260908/llvm-mingw-20260908-ucrt-aarch64.zip
+          LLVM_MINGW_SHA256: 7fe35f60407473c420ac72b25137f54385b0affd2c42efd507c0062fc626ab56
+        run: |
+          pushd "$RUNNER_TEMP"
+          curl --fail --location --output llvm-mingw.zip "$LLVM_MINGW_URL"
+          echo "$LLVM_MINGW_SHA256 *llvm-mingw.zip" | sha256sum -c
+
+          mkdir llvm-mingw
+          bsdtar -xf llvm-mingw.zip -C llvm-mingw --strip-components 1
+          echo "LLVM_MINGW_ROOT=$(cygpath -a llvm-mingw)" >> $GITHUB_ENV
+
+      - name: Compiler version
+        run: ${{ matrix.CC }} --version
+
+      - name: Build
+        run: |
+          ./tools/ci-build.sh \
+            --cores=2 \
+            --platform=${{ matrix.arch }} \
+            CC=${{ matrix.CC }} \
+            AR=${{ matrix.AR }}
+
+      - name: Test
+        run: make check
