@@ -32,7 +32,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #ifndef R_REPEAT
 #define R_REPEAT 200000
@@ -131,7 +130,7 @@ main(void)
 	}
 #endif
 
-	common_srand((unsigned int)getpid());
+	common_srand((unsigned int)common_getpid());
 
 #ifdef CK_F_PR_STORE_64
 	CK_PR_STORE_B(64);

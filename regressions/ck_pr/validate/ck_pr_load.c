@@ -29,7 +29,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #include <ck_pr.h>
 
@@ -120,7 +119,7 @@ main(void)
 {
 	void *ptr = (void *)(intptr_t)-1;
 
-	common_srand((unsigned int)getpid());
+	common_srand((unsigned int)common_getpid());
 
 #ifdef CK_F_PR_LOAD_64
 	CK_PR_LOAD_B(64);
