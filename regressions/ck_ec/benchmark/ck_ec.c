@@ -189,7 +189,7 @@ static const struct ck_ec_mode mp = {
 
 static CK_CC_FORCE_INLINE void bench32(const struct ck_ec_mode mode)
 {
-	ck_ec32_t ec CK_CC_CACHELINE = CK_EC_INITIALIZER;
+	CK_CC_CACHELINE ck_ec32_t ec = CK_EC_INITIALIZER;
 	uint64_t a;
 	uint64_t baseline = 1000 * 1000;
 	uint32_t value;
@@ -328,7 +328,7 @@ static CK_CC_FORCE_INLINE void bench32(const struct ck_ec_mode mode)
 #ifdef CK_F_EC64
 static CK_CC_FORCE_INLINE void bench64(const struct ck_ec_mode mode)
 {
-	ck_ec64_t ec CK_CC_CACHELINE = CK_EC_INITIALIZER;
+	CK_CC_CACHELINE ck_ec64_t ec = CK_EC_INITIALIZER;
 	uint64_t a;
 	uint64_t baseline = 1000 * 1000;
 	uint64_t value;

@@ -37,10 +37,10 @@ struct ck_stack_entry {
 };
 typedef struct ck_stack_entry ck_stack_entry_t;
 
-struct ck_stack {
+struct CK_CC_ALIASED ck_stack {
 	struct ck_stack_entry *head;
-	char *generation CK_CC_PACKED;
-} CK_CC_ALIASED;
+	CK_CC_PACKED char *generation;
+};
 typedef struct ck_stack ck_stack_t;
 
 #define CK_STACK_INITIALIZER { NULL, NULL }

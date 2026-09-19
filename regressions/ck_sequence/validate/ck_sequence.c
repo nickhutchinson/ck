@@ -43,8 +43,8 @@ struct example {
         unsigned int c;
 };
 
-static struct example global CK_CC_CACHELINE;
-static ck_sequence_t seqlock CK_CC_CACHELINE = CK_SEQUENCE_INITIALIZER;
+static CK_CC_CACHELINE struct example global;
+static CK_CC_CACHELINE ck_sequence_t seqlock = CK_SEQUENCE_INITIALIZER;
 static unsigned int barrier;
 static struct affinity affinerator;
 
@@ -66,7 +66,7 @@ validate(struct example *copy)
 }
 
 static void *
-consumer(void *unused CK_CC_UNUSED)
+consumer(CK_CC_UNUSED void *unused)
 {
         struct example copy;
         uint32_t version;

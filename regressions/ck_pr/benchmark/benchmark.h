@@ -26,7 +26,7 @@ static unsigned int ready;
 static uint64_t *count;
 static uint64_t nthr;
 
-static uint64_t object[2] CK_CC_CACHELINE;
+static CK_CC_CACHELINE uint64_t object[2];
 
 static void *
 fairness(void *null)

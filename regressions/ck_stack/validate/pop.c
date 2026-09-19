@@ -58,7 +58,7 @@ struct entry {
 };
 
 #ifdef SPINLOCK
-static struct entry *stack CK_CC_CACHELINE;
+static CK_CC_CACHELINE struct entry *stack;
 ck_spinlock_fas_t stack_spinlock = CK_SPINLOCK_FAS_INITIALIZER;
 #define UNLOCK ck_spinlock_fas_unlock
 #if defined(EB)
@@ -67,7 +67,7 @@ ck_spinlock_fas_t stack_spinlock = CK_SPINLOCK_FAS_INITIALIZER;
 #define LOCK ck_spinlock_fas_lock
 #endif
 #else
-static ck_stack_t stack CK_CC_CACHELINE;
+static CK_CC_CACHELINE ck_stack_t stack;
 CK_STACK_CONTAINER(struct entry, next, getvalue)
 #endif
 
@@ -77,7 +77,7 @@ static volatile unsigned int barrier = 0;
 static unsigned int critical;
 
 static void *
-stack_thread(void *unused CK_CC_UNUSED)
+stack_thread(CK_CC_UNUSED void *unused)
 {
 #if (defined(MPMC) && defined(CK_F_STACK_POP_MPMC)) || (defined(UPMC) && defined(CK_F_STACK_POP_UPMC)) || (defined(TRYMPMC) && defined(CK_F_STACK_TRYPOP_MPMC)) || (defined(TRYUPMC) && defined(CK_F_STACK_TRYPOP_UPMC))
 	ck_stack_entry_t *ref;

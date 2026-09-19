@@ -162,7 +162,7 @@ heterogeneous_test(void)
 }
 
 static void *
-thread(void *null CK_CC_UNUSED)
+thread(CK_CC_UNUSED void *null)
 {
 	int i = ITERATE;
 	unsigned int l;

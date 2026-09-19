@@ -41,7 +41,7 @@
 
 static int barrier;
 static int threads;
-static unsigned int flag CK_CC_CACHELINE;
+static CK_CC_CACHELINE unsigned int flag;
 static ck_pflock_t pflock = CK_PFLOCK_INITIALIZER;
 static struct affinity affinity;
 

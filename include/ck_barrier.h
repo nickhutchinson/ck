@@ -47,7 +47,7 @@ typedef struct ck_barrier_centralized_state ck_barrier_centralized_state_t;
 void ck_barrier_centralized(ck_barrier_centralized_t *,
     ck_barrier_centralized_state_t *, unsigned int);
 
-struct ck_barrier_combining_group {
+struct CK_CC_CACHELINE ck_barrier_combining_group {
 	unsigned int k;
 	unsigned int count;
 	unsigned int sense;
@@ -55,7 +55,7 @@ struct ck_barrier_combining_group {
 	struct ck_barrier_combining_group *left;
 	struct ck_barrier_combining_group *right;
 	struct ck_barrier_combining_group *next;
-} CK_CC_CACHELINE;
+};
 typedef struct ck_barrier_combining_group ck_barrier_combining_group_t;
 
 struct ck_barrier_combining_state {

@@ -82,21 +82,21 @@ struct ck_epoch_ref {
 	unsigned int count;
 };
 
-struct ck_epoch_record {
+struct CK_CC_CACHELINE ck_epoch_record {
 	ck_stack_entry_t record_next;
 	struct ck_epoch *global;
 	unsigned int state;
 	unsigned int epoch;
 	unsigned int active;
-	struct {
+	CK_CC_CACHELINE struct {
 		struct ck_epoch_ref bucket[CK_EPOCH_SENSE];
-	} local CK_CC_CACHELINE;
+	} local;
 	unsigned int n_pending;
 	unsigned int n_peak;
 	unsigned int n_dispatch;
 	void *ct;
 	ck_stack_t pending[CK_EPOCH_LENGTH];
-} CK_CC_CACHELINE;
+};
 typedef struct ck_epoch_record ck_epoch_record_t;
 
 struct ck_epoch {

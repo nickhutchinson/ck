@@ -43,7 +43,7 @@
 
 #include "../../common.h"
 
-static ck_ht_t ht CK_CC_CACHELINE;
+static CK_CC_CACHELINE ck_ht_t ht;
 static uintptr_t *keys;
 static size_t keys_length = 0;
 static ck_epoch_t epoch_ht;

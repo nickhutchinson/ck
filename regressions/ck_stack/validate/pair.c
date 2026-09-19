@@ -48,17 +48,17 @@
 
 #define TVTOD(tv) ((tv).tv_sec+((tv).tv_usec / (double)1000000))
 
-struct entry {
+struct CK_CC_CACHELINE entry {
 	int value;
 #if defined(SPINLOCK) || defined(PTHREADS)
 	struct entry *next;
 #else
 	ck_stack_entry_t next;
 #endif
-} CK_CC_CACHELINE;
+};
 
 #ifdef SPINLOCK
-static struct entry *stack CK_CC_CACHELINE;
+static CK_CC_CACHELINE struct entry *stack;
 ck_spinlock_fas_t stack_spinlock = CK_SPINLOCK_FAS_INITIALIZER;
 #define UNLOCK ck_spinlock_fas_unlock
 #if defined(EB)
@@ -67,12 +67,12 @@ ck_spinlock_fas_t stack_spinlock = CK_SPINLOCK_FAS_INITIALIZER;
 #define LOCK ck_spinlock_fas_lock
 #endif
 #elif defined(PTHREADS)
-static struct entry *stack CK_CC_CACHELINE;
+static CK_CC_CACHELINE struct entry *stack;
 pthread_mutex_t stack_spinlock = PTHREAD_MUTEX_INITIALIZER;
 #define LOCK pthread_mutex_lock
 #define UNLOCK pthread_mutex_unlock
 #else
-static ck_stack_t stack CK_CC_CACHELINE;
+static CK_CC_CACHELINE ck_stack_t stack;
 CK_STACK_CONTAINER(struct entry, next, getvalue)
 #endif
 

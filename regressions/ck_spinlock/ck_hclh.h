@@ -6,8 +6,8 @@
 #endif
 
 #define LOCK_NAME "ck_clh"
-#define LOCK_DEFINE static ck_spinlock_hclh_t CK_CC_CACHELINE *glob_lock; \
-		    static ck_spinlock_hclh_t CK_CC_CACHELINE *local_lock[CORES / 2]
+#define LOCK_DEFINE static CK_CC_CACHELINE ck_spinlock_hclh_t *glob_lock; \
+		    static CK_CC_CACHELINE ck_spinlock_hclh_t *local_lock[CORES / 2]
 
 #define LOCK_STATE ck_spinlock_hclh_t *na = malloc(MAX(sizeof(ck_spinlock_hclh_t), 64))
 #define LOCK ck_spinlock_hclh_lock(&glob_lock, &local_lock[core % (CORES / 2)], na)
