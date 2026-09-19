@@ -105,6 +105,7 @@ generate()
 	    -e "s#@VERSION@#$VERSION#g"				\
 	    -e "s#@VERSION_MAJOR@#$VERSION_MAJOR#g"		\
 	    -e "s#@CC@#$CC#g"					\
+	    -e "s#@AR@#$AR#g"					\
  	    -e "s#@CFLAGS@#$CFLAGS#g"				\
  	    -e "s#@HEADERS@#$HEADERS#g"				\
 	    -e "s#@LIBRARY@#$LIBRARY#g"				\
