@@ -36,7 +36,6 @@
 #include <stdint.h>
 #include <pthread.h>
 #include <time.h>
-#include <unistd.h>
 
 #include "../../common.h"
 
@@ -195,7 +194,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	srand(getpid());
+	srand(common_getpid());
 
 	affinerator.request = 0;
 	affinerator.delta = d;

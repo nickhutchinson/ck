@@ -1,10 +1,16 @@
 #ifndef FUZZ_HARNESS_H
 #define FUZZ_HARNESS_H
 #include <assert.h>
+#include <stdio.h>
+
 #include <ck_stddef.h>
 #include <ck_string.h>
-#include <stdio.h>
+
+#if defined(_WIN32)
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
 
 #if defined(USE_LIBFUZZER)
 #define TEST(function, examples)					\
