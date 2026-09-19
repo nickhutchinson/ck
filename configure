@@ -105,6 +105,7 @@ generate()
 	    -e "s#@VERSION@#$VERSION#g"				\
 	    -e "s#@VERSION_MAJOR@#$VERSION_MAJOR#g"		\
 	    -e "s#@CC@#$CC#g"					\
+	    -e "s#@AR@#$AR#g"					\
  	    -e "s#@CFLAGS@#$CFLAGS#g"				\
  	    -e "s#@HEADERS@#$HEADERS#g"				\
 	    -e "s#@LIBRARY@#$LIBRARY#g"				\
@@ -225,7 +226,7 @@ for option; do
 		echo "  --cores=N                Specify number of cores available on target machine"
 		echo
 		echo "The following environment variables may be used:"
-		echo "   AR       AR archiver command"
+		echo "   AR       AR archiver command (default: ar)"
 		echo "   CC       C compiler command"
 		echo "   CFLAGS   C compiler flags"
 		echo "   LDFLAGS  Linker flags"
@@ -342,6 +343,7 @@ for option; do
 	esac
 done
 
+AR=${AR:-ar}
 HEADERS=${HEADERS:-"${PREFIX}/include"}
 LIBRARY=${LIBRARY:-"${PREFIX}/lib"}
 MANDIR=${MANDIR:-"${PREFIX}/share/man"}
