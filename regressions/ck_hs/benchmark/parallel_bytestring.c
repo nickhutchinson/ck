@@ -40,7 +40,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <unistd.h>
 
 static CK_CC_CACHELINE ck_hs_t hs;
 static char **keys;

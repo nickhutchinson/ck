@@ -57,6 +57,7 @@
 #if defined(_WIN32)
 #include <assert.h>
 #include <malloc.h>
+#include <process.h>
 
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
@@ -89,6 +90,16 @@ common_srand(unsigned int i)
 	srand(i);
 #else
 	srandom(i);
+#endif
+}
+
+CK_CC_INLINE static int
+common_getpid(void)
+{
+#ifdef _WIN32
+	return _getpid();
+#else
+	return getpid();
 #endif
 }
 
@@ -155,6 +166,17 @@ common_sleep(unsigned int n)
 	Sleep(n * 1000);
 #else
 	sleep(n);
+#endif
+}
+
+CK_CC_INLINE static int
+common_usleep(unsigned int usec)
+{
+#ifdef _WIN32
+	Sleep((usec + 999) / 1000);
+	return 0;
+#else
+	return usleep(usec);
 #endif
 }
 

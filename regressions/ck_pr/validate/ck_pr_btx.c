@@ -26,7 +26,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <stdbool.h>
 #include <ck_pr.h>
 
@@ -51,7 +50,7 @@
 		bool serial_t, ck_pr_t;							\
 		T x = 65535, y = 65535;							\
 											\
-		common_srand((unsigned int)getpid());					\
+		common_srand((unsigned int)common_getpid());					\
 		m = sizeof(T) * 8;							\
 											\
 		puts("***TESTING ck_pr_"#K"_"#S"***");					\

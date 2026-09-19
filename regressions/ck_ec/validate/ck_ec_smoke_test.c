@@ -5,7 +5,8 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <time.h>
-#include <unistd.h>
+
+#include "../../common.h"
 
 #define TIME_MAX ((time_t)((1ULL << ((sizeof(time_t) * CHAR_BIT) - 1)) - 1))
 
@@ -317,7 +318,7 @@ static void test_threaded_inc_32(const struct ck_ec_mode *mode)
 	ck_pr_store_int(&woken, 0);
 
 	pthread_create(&waiter, NULL, test_threaded_32_waiter, &ec);
-	usleep(10000);
+	common_usleep(10000);
 
 	assert(ck_pr_load_int(&woken) == 0);
 	ck_ec_inc(&ec, mode);
@@ -335,7 +336,7 @@ static void test_threaded_add_32(const struct ck_ec_mode *mode)
 	ck_pr_store_int(&woken, 0);
 
 	pthread_create(&waiter, NULL, test_threaded_32_waiter, &ec);
-	usleep(10000);
+	common_usleep(10000);
 
 	assert(ck_pr_load_int(&woken) == 0);
 	ck_ec_add(&ec, mode, 4);
@@ -363,7 +364,7 @@ static void test_threaded_inc_64(const struct ck_ec_mode *mode)
 	ck_pr_store_int(&woken, 0);
 
 	pthread_create(&waiter, NULL, test_threaded_64_waiter, &ec);
-	usleep(10000);
+	common_usleep(10000);
 
 	assert(ck_pr_load_int(&woken) == 0);
 	ck_ec_inc(&ec, mode);
@@ -381,7 +382,7 @@ static void test_threaded_add_64(const struct ck_ec_mode *mode)
 	ck_pr_store_int(&woken, 0);
 
 	pthread_create(&waiter, NULL, test_threaded_64_waiter, &ec);
-	usleep(10000);
+	common_usleep(10000);
 
 	assert(ck_pr_load_int(&woken) == 0);
 	ck_ec_add(&ec, mode, 4);

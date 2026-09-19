@@ -2,11 +2,16 @@
 #define FUZZ_HARNESS_H
 #include <assert.h>
 #include <stdio.h>
-#include <unistd.h>
 
 #include <ck_stddef.h>
 #include <ck_stdint.h>
 #include <ck_string.h>
+
+#if defined(_WIN32)
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
 
 typedef struct fuzz_u128 {
 	uint64_t hi;
