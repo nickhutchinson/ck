@@ -191,7 +191,7 @@ obj_destroy(ck_epoch_entry_t *e)
 static void
 test_single_reader_with_barrier_thread(void)
 {
-	const int num_sections = 10;
+	enum { num_sections = 10 };
 	struct obj o;
 	unsigned int run;
 	pthread_t thread;
@@ -251,7 +251,7 @@ test_single_reader_with_barrier_thread(void)
 static void
 test_multiple_readers_with_barrier_thread(void)
 {
-	const int num_readers = 10;
+	enum { num_readers = 10 };
 	struct obj o;
 	unsigned int run;
 	ck_epoch_section_t section;
