@@ -387,7 +387,7 @@ aff_iterate_core(struct affinity *acb, unsigned int *core)
 }
 #elif defined(__FreeBSD__)
 CK_CC_UNUSED static int
-aff_iterate(struct affinity *acb CK_CC_UNUSED)
+aff_iterate(CK_CC_UNUSED struct affinity *acb)
 {
 	unsigned int c;
 	cpuset_t mask;
@@ -400,7 +400,7 @@ aff_iterate(struct affinity *acb CK_CC_UNUSED)
 }
 
 CK_CC_UNUSED static int
-aff_iterate_core(struct affinity *acb CK_CC_UNUSED, unsigned int *core)
+aff_iterate_core(CK_CC_UNUSED struct affinity *acb, unsigned int *core)
 {
 	cpuset_t mask;
 
@@ -412,7 +412,7 @@ aff_iterate_core(struct affinity *acb CK_CC_UNUSED, unsigned int *core)
 }
 #elif defined(__NetBSD__)
 CK_CC_UNUSED static int
-aff_iterate(struct affinity *acb CK_CC_UNUSED)
+aff_iterate(CK_CC_UNUSED struct affinity *acb)
 {
 	unsigned int c;
 	cpuset_t *mask;
@@ -429,7 +429,7 @@ aff_iterate(struct affinity *acb CK_CC_UNUSED)
 }
 
 CK_CC_UNUSED static int
-aff_iterate_core(struct affinity *acb CK_CC_UNUSED, unsigned int *core)
+aff_iterate_core(CK_CC_UNUSED struct affinity *acb, unsigned int *core)
 {
 	cpuset_t *mask;
 
@@ -445,14 +445,14 @@ aff_iterate_core(struct affinity *acb CK_CC_UNUSED, unsigned int *core)
 }
 #else
 CK_CC_UNUSED static int
-aff_iterate(struct affinity *acb CK_CC_UNUSED)
+aff_iterate(CK_CC_UNUSED struct affinity *acb)
 {
 
 	return (0);
 }
 
 CK_CC_UNUSED static int
-aff_iterate_core(struct affinity *acb CK_CC_UNUSED, unsigned int *core)
+aff_iterate_core(CK_CC_UNUSED struct affinity *acb, unsigned int *core)
 {
 	*core = 0;
 	return (0);

@@ -57,7 +57,7 @@ static ck_epoch_t epoch;
 static struct affinity a;
 
 static void *
-read_thread(void *unused CK_CC_UNUSED)
+read_thread(CK_CC_UNUSED void *unused)
 {
 	ck_epoch_record_t *record;
 	unsigned long long i = 0;
@@ -158,7 +158,7 @@ read_thread(void *unused CK_CC_UNUSED)
 }
 
 static void *
-write_thread(void *unused CK_CC_UNUSED)
+write_thread(CK_CC_UNUSED void *unused)
 {
 	ck_epoch_record_t *record;
 	unsigned long iterations = 0;

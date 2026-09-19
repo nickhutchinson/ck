@@ -40,10 +40,10 @@
 
 static int barrier;
 static int threads;
-static unsigned int flag CK_CC_CACHELINE;
-static struct {
+static CK_CC_CACHELINE unsigned int flag;
+static CK_CC_CACHELINE struct {
 	ck_swlock_t lock;
-} rw CK_CC_CACHELINE = {
+} rw = {
 	.lock = CK_SWLOCK_INITIALIZER
 };
 

@@ -50,7 +50,7 @@ static int nthr;
 static ck_tflock_ticket_t lock = CK_TFLOCK_TICKET_INITIALIZER;
 
 static void *
-thread(void *null CK_CC_UNUSED)
+thread(CK_CC_UNUSED void *null)
 {
 	unsigned int i = ITERATE;
 	unsigned int l;

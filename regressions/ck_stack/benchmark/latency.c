@@ -45,7 +45,7 @@
  * some irrelevant GCC warnings.
  */
 
-static ck_stack_t stack CK_CC_CACHELINE;
+static CK_CC_CACHELINE ck_stack_t stack;
 
 int
 main(void)

@@ -61,7 +61,7 @@ enum {
 	CK_HP_FREE = 1
 };
 
-struct ck_hp_record {
+struct CK_CC_CACHELINE ck_hp_record {
 	int state;
 	void **pointers;
 	void *cache[CK_HP_CACHE];
@@ -71,7 +71,7 @@ struct ck_hp_record {
 	ck_stack_entry_t global_entry;
 	unsigned int n_peak;
 	uint64_t n_reclamations;
-} CK_CC_CACHELINE;
+};
 typedef struct ck_hp_record ck_hp_record_t;
 
 CK_CC_INLINE static void
