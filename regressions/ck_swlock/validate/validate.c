@@ -405,7 +405,12 @@ thread(void *arg)
 static void
 swlock_test(pthread_t *threads, void *(*f)(void *), const char *test)
 {
-	int i, tid[nthr];
+	int i;
+	int *tid = malloc(sizeof(int) * nthr);
+
+	if (tid == NULL) {
+		ck_error("ERROR: Could not allocate thread identifiers\n");
+	}
 
 	fprintf(stderr, "Creating threads (%s)...", test);
 	for (i = 0; i < nthr; i++) {
@@ -419,6 +424,8 @@ swlock_test(pthread_t *threads, void *(*f)(void *), const char *test)
 	for (i = 0; i < nthr; i++)
 		pthread_join(threads[i], NULL);
 	fprintf(stderr, "done (passed)\n");
+
+	free(tid);
 	return;
 }
 
