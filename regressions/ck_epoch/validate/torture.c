@@ -46,13 +46,13 @@ static unsigned int barrier;
 static unsigned int leave;
 static unsigned int first;
 
-struct {
+CK_CC_CACHELINE struct {
 	unsigned int value;
-} valid CK_CC_CACHELINE = { 1 };
+} valid = { 1 };
 
-struct {
+CK_CC_CACHELINE struct {
 	unsigned int value;
-} invalid CK_CC_CACHELINE;
+} invalid;
 
 #ifndef PAIRS_S
 #define PAIRS_S 10000
@@ -113,7 +113,7 @@ test(struct ck_epoch_record *record)
 }
 
 static void *
-read_thread(void *unused CK_CC_UNUSED)
+read_thread(CK_CC_UNUSED void *unused)
 {
 	ck_epoch_record_t *record;
 
@@ -143,7 +143,7 @@ read_thread(void *unused CK_CC_UNUSED)
 }
 
 static void *
-write_thread(void *unused CK_CC_UNUSED)
+write_thread(CK_CC_UNUSED void *unused)
 {
 	ck_epoch_record_t *record;
 	unsigned long iterations = 0;

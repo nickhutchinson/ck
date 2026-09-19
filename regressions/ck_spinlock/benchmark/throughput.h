@@ -55,15 +55,15 @@ struct block {
 static struct affinity a;
 static unsigned int ready;
 
-struct counters {
+struct CK_CC_CACHELINE counters {
 	uint64_t value;
-} CK_CC_CACHELINE;
+};
 
 static struct counters *count;
 static uint64_t nthr;
 static unsigned int barrier;
 
-int critical __attribute__((aligned(64)));
+CK_CC_ALIGN(64) int critical;
 
 LOCK_DEFINE;
 

@@ -49,15 +49,15 @@
 static struct affinity a;
 static unsigned int ready;
 
-struct counters {
+struct CK_CC_CACHELINE counters {
 	uint64_t value;
-} CK_CC_CACHELINE;
+};
 
 static struct counters *count;
 static uint64_t nthr;
 static unsigned int n_cohorts;
 static unsigned int barrier;
-static int critical CK_CC_CACHELINE;
+static CK_CC_CACHELINE int critical;
 
 static void
 ck_spinlock_fas_lock_with_context(ck_spinlock_fas_t *lock, void *context)
@@ -89,9 +89,9 @@ CK_COHORT_PROTOTYPE(basic,
     ck_spinlock_fas_lock_with_context, ck_spinlock_fas_unlock_with_context, ck_spinlock_fas_locked_with_context,
     ck_spinlock_fas_lock_with_context, ck_spinlock_fas_unlock_with_context, ck_spinlock_fas_locked_with_context)
 
-struct cohort_record {
+struct CK_CC_CACHELINE cohort_record {
 	CK_COHORT_INSTANCE(basic) cohort;
-} CK_CC_CACHELINE;
+};
 static struct cohort_record *cohorts;
 
 static ck_spinlock_t global_lock = CK_SPINLOCK_INITIALIZER;

@@ -213,6 +213,7 @@ bool ck_hs_reset_size(ck_hs_t *, unsigned long);
 void ck_hs_stat(ck_hs_t *, struct ck_hs_stat *);
 void ck_hs_deinit(ck_hs_t *);
 
-void ck_hs_destroy(ck_hs_t *) CK_CC_DEPRECATED("use ck_hs_deinit instead");
+CK_CC_DEPRECATED("use ck_hs_deinit instead")
+void ck_hs_destroy(ck_hs_t *);
 
 #endif /* CK_HS_H */

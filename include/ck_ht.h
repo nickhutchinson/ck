@@ -67,17 +67,18 @@ typedef struct ck_ht_hash ck_ht_hash_t;
 #define CK_HT_KEY_LENGTH 65535U
 #endif
 
-struct ck_ht_entry {
 #ifdef CK_HT_PP
+struct CK_CC_ALIGN(16) ck_ht_entry {
 	uintptr_t key;
-	uintptr_t value CK_CC_PACKED;
-} CK_CC_ALIGN(16);
+	CK_CC_PACKED uintptr_t value;
+};
 #else
+struct CK_CC_ALIGN(32) ck_ht_entry {
 	uintptr_t key;
 	uintptr_t value;
 	CK_HT_TYPE key_length;
 	CK_HT_TYPE hash;
-} CK_CC_ALIGN(32);
+};
 #endif
 typedef struct ck_ht_entry ck_ht_entry_t;
 

@@ -56,8 +56,8 @@ struct entry {
 
 static int nthr;
 static ck_ring_t *ring;
-static ck_ring_t ring_mpmc CK_CC_CACHELINE;
-static ck_ring_t ring_mw CK_CC_CACHELINE;
+static CK_CC_CACHELINE ck_ring_t ring_mpmc;
+static CK_CC_CACHELINE ck_ring_t ring_mw;
 static struct affinity a;
 static int size;
 static int eb;

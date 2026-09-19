@@ -45,7 +45,7 @@
 #endif
 
 static unsigned int barrier;
-static unsigned int flag CK_CC_CACHELINE;
+static CK_CC_CACHELINE unsigned int flag;
 static struct affinity affinity;
 static unsigned int nthr;
 
@@ -80,9 +80,9 @@ CK_COHORT_PROTOTYPE(fas_fas,
     ck_spinlock_fas_lock_with_context, ck_spinlock_fas_unlock_with_context, ck_spinlock_fas_locked_with_context)
 LOCK_PROTOTYPE(fas_fas)
 
-struct cohort_record {
+struct CK_CC_CACHELINE cohort_record {
 	CK_COHORT_INSTANCE(fas_fas) cohort;
-} CK_CC_CACHELINE;
+};
 static struct cohort_record *cohorts;
 
 static ck_spinlock_t global_lock = CK_SPINLOCK_INITIALIZER;

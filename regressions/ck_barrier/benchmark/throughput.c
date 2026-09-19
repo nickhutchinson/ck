@@ -43,13 +43,13 @@ static struct affinity a;
 static int nthr;
 static int tid;
 static ck_barrier_centralized_t barrier = CK_BARRIER_CENTRALIZED_INITIALIZER;
-struct counter {
+struct CK_CC_CACHELINE counter {
 	uint64_t value;
-} CK_CC_CACHELINE;
+};
 struct counter *counters;
 
 static void *
-thread(void *null CK_CC_UNUSED)
+thread(CK_CC_UNUSED void *null)
 {
 	ck_barrier_centralized_state_t state = CK_BARRIER_CENTRALIZED_STATE_INITIALIZER;
 	int id;

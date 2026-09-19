@@ -85,20 +85,20 @@ enum ck_rhs_probe_behavior {
 	CK_RHS_PROBE_ROBIN_HOOD_NO_RELOCATE, /* Continue a Robin Hood probe without selecting another relocation candidate. */
 	CK_RHS_PROBE_NO_RH,	/* Don't do the RH dance */
 };
-struct ck_rhs_entry_desc {
+struct CK_CC_ALIGN(16) ck_rhs_entry_desc {
 	unsigned int probes;
 	unsigned short wanted;
 	CK_RHS_WORD probe_bound;
 	bool in_rh;
 	const void *entry;
-} CK_CC_ALIGN(16);
+};
 
-struct ck_rhs_no_entry_desc {
+struct CK_CC_ALIGN(8) ck_rhs_no_entry_desc {
 	unsigned int probes;
 	unsigned short wanted;
 	CK_RHS_WORD probe_bound;
 	bool in_rh;
-} CK_CC_ALIGN(8);
+};
 
 typedef long ck_rhs_probe_cb_t(struct ck_rhs *hs,
     struct ck_rhs_map *map,
