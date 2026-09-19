@@ -5,6 +5,7 @@
 
 #include <ck_stddef.h>
 #include <ck_stdint.h>
+#include <ck_stdlib.h>
 #include <ck_string.h>
 
 #if defined(_WIN32)
@@ -164,6 +165,26 @@ fuzz_s128_cmp(fuzz_s128_t x, fuzz_s128_t y)
 	return 0;
 }
 
+static inline void
+fuzz_harness_init(void)
+{
+#if defined(_WIN32)
+	/* Disable blocking, interactive dialog on assert() failures when we're
+	 * linked against the debug CRT. */
+	_set_error_mode(_OUT_TO_STDERR);
+
+	/* Disable blocking, interactive dialog from calls to abort() when we're
+	 * linked against debug CRT */
+	_set_abort_behavior(0, _WRITE_ABORT_MSG);
+
+	/* Make abort() terminate the process with
+	 * __fastfail(FAST_FAIL_FATAL_APP_EXIT) rather than exit(3) when we're
+	 * linked agianst the debug CRT. This allows for Windows to generate
+	 * minidumps via Windows Error Reporting. */
+	_set_abort_behavior(_CALL_REPORTFAULT, _CALL_REPORTFAULT);
+#endif
+}
+
 #if defined(USE_LIBFUZZER)
 #define TEST(function, examples)					\
 	void LLVMFuzzerInitialize(int *argcp, char ***argvp);		\
@@ -174,6 +195,8 @@ fuzz_s128_cmp(fuzz_s128_t x, fuzz_s128_t y)
 		static char size[128];					\
 		static char *argv[1024];				\
 		int argc = *argcp;					\
+									\
+		fuzz_harness_init();					\
 									\
 		assert(argc < 1023);					\
 									\
@@ -218,6 +241,9 @@ fuzz_s128_cmp(fuzz_s128_t x, fuzz_s128_t y)
 									\
 		(void)argc;						\
 		(void)argv;						\
+									\
+		fuzz_harness_init();					\
+									\
 		for (size_t i = 0;					\
 		     i < sizeof(examples) / sizeof(examples[0]);	\
 		     i++) {						\
@@ -240,6 +266,8 @@ fuzz_s128_cmp(fuzz_s128_t x, fuzz_s128_t y)
 	{								\
 		(void)argc;						\
 		(void)argv;						\
+									\
+		fuzz_harness_init();					\
 									\
 		for (size_t i = 0;					\
 		     i < sizeof(examples) / sizeof(examples[0]);	\
