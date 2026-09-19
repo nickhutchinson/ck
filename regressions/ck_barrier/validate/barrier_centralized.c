@@ -55,7 +55,7 @@ static ck_barrier_centralized_t barrier = CK_BARRIER_CENTRALIZED_INITIALIZER;
 static int barrier_wait;
 
 static void *
-thread(void *null CK_CC_UNUSED)
+thread(CK_CC_UNUSED void *null)
 {
 	ck_barrier_centralized_state_t state = CK_BARRIER_CENTRALIZED_STATE_INITIALIZER;
 	int j, counter;

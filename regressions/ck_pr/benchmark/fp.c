@@ -8,8 +8,8 @@
 #define IR 3000000
 #endif /* IR */
 
-static int a CK_CC_CACHELINE;
-static int b CK_CC_CACHELINE;
+static CK_CC_CACHELINE int a;
+static CK_CC_CACHELINE int b;
 
 int
 main(void)

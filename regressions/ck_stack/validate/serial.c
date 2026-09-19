@@ -164,7 +164,7 @@ batch_generation(ck_stack_t *stack, ck_stack_entry_t *(*batch)(ck_stack_t *))
 int
 main(void)
 {
-	ck_stack_t stack CK_CC_CACHELINE;
+	CK_CC_CACHELINE ck_stack_t stack;
 
 	serial(&stack);
 	batch_advance(&stack, batch_pop);

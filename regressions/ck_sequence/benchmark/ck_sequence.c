@@ -38,7 +38,7 @@
 #define STEPS (65536 * 64)
 #endif
 
-static ck_sequence_t seqlock CK_CC_CACHELINE = CK_SEQUENCE_INITIALIZER;
+static CK_CC_CACHELINE ck_sequence_t seqlock = CK_SEQUENCE_INITIALIZER;
 
 int
 main(void)

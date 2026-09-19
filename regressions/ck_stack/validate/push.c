@@ -56,9 +56,9 @@ struct entry {
 };
 
 #ifdef SPINLOCK
-static struct entry *stack CK_CC_CACHELINE;
+static CK_CC_CACHELINE struct entry *stack;
 #else
-static ck_stack_t stack CK_CC_CACHELINE;
+static CK_CC_CACHELINE ck_stack_t stack;
 #endif
 
 CK_STACK_CONTAINER(struct entry, next, getvalue)

@@ -52,7 +52,7 @@ static ck_rwlock_t lock = CK_RWLOCK_INITIALIZER;
 static ck_rwlock_recursive_t r_lock = CK_RWLOCK_RECURSIVE_INITIALIZER;
 
 static void *
-thread_recursive(void *null CK_CC_UNUSED)
+thread_recursive(CK_CC_UNUSED void *null)
 {
 	int i = ITERATE;
 	unsigned int l;
@@ -125,7 +125,7 @@ thread_recursive(void *null CK_CC_UNUSED)
 
 #ifdef CK_F_PR_RTM
 static void *
-thread_rtm_adaptive(void *null CK_CC_UNUSED)
+thread_rtm_adaptive(CK_CC_UNUSED void *null)
 {
 	unsigned int i = ITERATE;
 	unsigned int l;
@@ -189,7 +189,7 @@ thread_rtm_adaptive(void *null CK_CC_UNUSED)
 }
 
 static void *
-thread_rtm_mix(void *null CK_CC_UNUSED)
+thread_rtm_mix(CK_CC_UNUSED void *null)
 {
 	unsigned int i = ITERATE;
 	unsigned int l;
@@ -271,7 +271,7 @@ thread_rtm_mix(void *null CK_CC_UNUSED)
 }
 
 static void *
-thread_rtm(void *null CK_CC_UNUSED)
+thread_rtm(CK_CC_UNUSED void *null)
 {
 	unsigned int i = ITERATE;
 	unsigned int l;
@@ -334,7 +334,7 @@ thread_rtm(void *null CK_CC_UNUSED)
 #endif /* CK_F_PR_RTM */
 
 static void *
-thread(void *null CK_CC_UNUSED)
+thread(CK_CC_UNUSED void *null)
 {
 	unsigned int i = ITERATE;
 	unsigned int l;

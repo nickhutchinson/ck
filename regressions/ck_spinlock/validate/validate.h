@@ -56,7 +56,7 @@ static uint64_t nthr;
 LOCK_DEFINE;
 
 static void *
-thread(void *null CK_CC_UNUSED)
+thread(CK_CC_UNUSED void *null)
 {
 #ifdef LOCK_STATE
 	LOCK_STATE;
