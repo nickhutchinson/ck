@@ -107,7 +107,6 @@ static void wake64(const struct ck_ec_ops *ops, const uint64_t *address)
 #include <linux/types.h>
 #include <sys/syscall.h>
 #include <time.h>
-#include <unistd.h>
 
 struct futex_timespec {
 	__kernel_long_t tv_sec;

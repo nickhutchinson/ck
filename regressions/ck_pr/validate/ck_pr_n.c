@@ -26,7 +26,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <ck_pr.h>
 
 #include "../../common.h"
@@ -40,7 +39,7 @@
 		T x = 0, y = 0;					\
 								\
 		puts("***TESTING ck_pr_"#K"_"#S"***");		\
-		common_srand((unsigned int)getpid());		\
+		common_srand((unsigned int)common_getpid());	\
 		for (i = 0; i < REPEAT; ++i) {			\
 			r = common_rand();				\
 			x += r;					\

@@ -25,7 +25,6 @@
  */
 
 #include <pthread.h>
-#include <unistd.h>
 #include <ck_stdint.h>
 #include <inttypes.h>
 #include <stdio.h>

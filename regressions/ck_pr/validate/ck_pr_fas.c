@@ -29,7 +29,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #include <ck_pr.h>
 
@@ -125,7 +124,7 @@ int
 main(void)
 {
 
-	common_srand((unsigned int)getpid());
+	common_srand((unsigned int)common_getpid());
 
 #ifdef CK_F_PR_FAS_64
 	CK_PR_FAS_B(64);

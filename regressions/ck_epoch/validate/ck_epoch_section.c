@@ -31,7 +31,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
-#include <unistd.h>
 
 #include <ck_epoch.h>
 
@@ -145,7 +144,7 @@ barrier_work(void *arg)
 		 * to the test thread.
 		 */
 		ck_epoch_barrier(&record2);
-		usleep(5 * 1000);
+		common_usleep(5 * 1000);
 	}
 
 	return NULL;
@@ -178,7 +177,7 @@ reader_work(void *arg)
 	 * thread.
 	 */
 	ck_epoch_begin(local_record, &section);
-	usleep((common_rand() % 100) * 1000);
+	common_usleep((common_rand() % 100) * 1000);
 	assert(ck_pr_load_uint(&o->destroyed) == 0);
 	ck_epoch_end(local_record, &section);
 
@@ -222,7 +221,7 @@ test_single_reader_with_barrier_thread(void)
 		ck_epoch_begin(&record, &sections[i]);
 		shuffled[i] = i;
 		if (i == num_sections / 2) {
-			usleep(1 * 1000);
+			common_usleep(1 * 1000);
 		}
 	}
 
@@ -241,7 +240,7 @@ test_single_reader_with_barrier_thread(void)
 		ck_epoch_end(&record, &sections[shuffled[i]]);
 		if (i != num_sections - 1) {
 			assert(ck_pr_load_uint(&o.destroyed) == 0);
-			usleep(3 * 1000);
+			common_usleep(3 * 1000);
 		}
 	}
 

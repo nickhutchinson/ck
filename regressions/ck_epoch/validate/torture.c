@@ -28,7 +28,6 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <ck_cc.h>
 #include <ck_pr.h>
 #include <inttypes.h>

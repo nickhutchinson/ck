@@ -26,7 +26,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <ck_pr.h>
 
 #include "../../common.h"
@@ -66,7 +65,7 @@ TEST_FAX_FN_S(uint, unsigned int)
 		T x = 0, y = 0, x_b, y_b;						\
 											\
 		puts("***TESTING ck_pr_"#K"_"#S"***");					\
-		common_srand((unsigned int)getpid());					\
+		common_srand((unsigned int)common_getpid());					\
 		for (i = 0; i < REPEAT; ++i) {						\
 			r = common_rand();							\
 			x_b = test_##K##_##S(&x, r);					\
