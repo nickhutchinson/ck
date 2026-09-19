@@ -106,7 +106,6 @@ static void wake64(const struct ck_ec_ops *ops, const uint64_t *address)
 #include <linux/futex.h>
 #include <sys/syscall.h>
 #include <time.h>
-#include <unistd.h>
 
 static int gettime(const struct ck_ec_ops *ops, struct timespec *out)
 {
