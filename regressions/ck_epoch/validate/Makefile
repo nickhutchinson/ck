@@ -10,6 +10,7 @@ check: all
 	./ck_stack $(CORES) 1
 	./ck_epoch_synchronize $(HALF) $(HALF) 1
 	./ck_epoch_poll $(CORES) 1 1
+	./ck_epoch_call
 	./ck_epoch_section
 	./ck_epoch_section_2 $(HALF) $(HALF) 1
 	./torture $(HALF) $(HALF) 1

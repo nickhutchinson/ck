@@ -1,0 +1,2 @@
+ck_add_benchmark(parallel_bytestring)
+ck_add_benchmark(serial)

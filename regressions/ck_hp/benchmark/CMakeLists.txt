@@ -1,0 +1,2 @@
+ck_add_benchmark(fifo_latency)
+ck_add_benchmark(stack_latency)

@@ -1,0 +1,5 @@
+ck_add_regression(ck_hp_fifo ARGS ${CK_REGRESSION_HALF_CORES} 1 1024 100)
+ck_add_regression(ck_hp_fifo_donner ARGS ${CK_REGRESSION_HALF_CORES} 16384)
+ck_add_regression(ck_hp_stack ARGS ${CK_REGRESSION_HALF_CORES} 64 1)
+ck_add_regression(nbds_haz_test ARGS ${CK_REGRESSION_HALF_CORES} 15 1)
+ck_add_regression(serial)

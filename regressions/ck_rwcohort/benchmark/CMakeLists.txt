@@ -1,0 +1,5 @@
+foreach(lock IN ITEMS ck_neutral ck_rp ck_wp)
+    foreach(mode IN ITEMS THROUGHPUT LATENCY)
+        ck_add_benchmark(${lock}.${mode} SOURCES ${lock}.c DEFINITIONS ${mode})
+    endforeach()
+endforeach()

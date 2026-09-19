@@ -1,0 +1,5 @@
+ck_add_benchmark(parallel_bytestring)
+ck_add_benchmark(parallel_bytestring.delete SOURCES parallel_bytestring.c DEFINITIONS HT_DELETE)
+ck_add_benchmark(parallel_direct)
+ck_add_benchmark(serial)
+ck_add_benchmark(serial.delete SOURCES serial.c DEFINITIONS HT_DELETE)
