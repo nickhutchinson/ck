@@ -50,7 +50,7 @@ static int nthr;
 static ck_pflock_t lock = CK_PFLOCK_INITIALIZER;
 
 static void *
-thread(void *null CK_CC_UNUSED)
+thread(CK_CC_UNUSED void *null)
 {
 	int i = ITERATE;
 	unsigned int l;

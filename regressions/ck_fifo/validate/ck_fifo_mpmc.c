@@ -51,7 +51,7 @@ struct entry {
 static int nthr;
 
 #ifdef CK_F_FIFO_MPMC
-static ck_fifo_mpmc_t fifo CK_CC_CACHELINE;
+static CK_CC_CACHELINE ck_fifo_mpmc_t fifo;
 #endif
 
 static struct affinity a;

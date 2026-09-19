@@ -83,7 +83,7 @@ static LOCK_INSTANCE(fas_fas) rw_cohort = LOCK_INITIALIZER;
 static int n_cohorts;
 
 static void *
-thread(void *null CK_CC_UNUSED)
+thread(CK_CC_UNUSED void *null)
 {
         int i = ITERATE;
 	unsigned int l;

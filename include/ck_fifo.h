@@ -203,10 +203,10 @@ ck_fifo_spsc_isempty(struct ck_fifo_spsc *fifo)
 #ifndef CK_F_FIFO_MPMC
 #define CK_F_FIFO_MPMC
 struct ck_fifo_mpmc_entry;
-struct ck_fifo_mpmc_pointer {
+struct CK_CC_ALIGN(16) ck_fifo_mpmc_pointer {
 	struct ck_fifo_mpmc_entry *pointer;
-	uintptr_t generation CK_CC_PACKED;
-} CK_CC_ALIGN(16);
+	CK_CC_PACKED uintptr_t generation;
+};
 
 struct ck_fifo_mpmc_entry {
 	void *value;

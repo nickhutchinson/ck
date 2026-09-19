@@ -42,7 +42,7 @@
 #include <time.h>
 #include <unistd.h>
 
-static ck_hs_t hs CK_CC_CACHELINE;
+static CK_CC_CACHELINE ck_hs_t hs;
 static char **keys;
 static size_t keys_length = 0;
 static size_t keys_capacity = 128;

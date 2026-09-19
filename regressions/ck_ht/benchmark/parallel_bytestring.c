@@ -44,7 +44,7 @@
 
 #include "../../common.h"
 
-static ck_ht_t ht CK_CC_CACHELINE;
+static CK_CC_CACHELINE ck_ht_t ht;
 static char **keys;
 static size_t keys_length = 0;
 static size_t keys_capacity = 128;

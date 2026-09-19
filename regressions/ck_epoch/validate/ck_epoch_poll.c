@@ -286,10 +286,10 @@ test_poll_deferred(void)
 }
 
 static void *
-read_thread(void *unused CK_CC_UNUSED)
+read_thread(CK_CC_UNUSED void *unused)
 {
 	unsigned int j;
-	ck_epoch_record_t *record CK_CC_CACHELINE;
+	CK_CC_CACHELINE ck_epoch_record_t *record;
 	ck_stack_entry_t *cursor, *n;
 
 	record = common_aligned_alloc(common_alignof(ck_epoch_record_t),
@@ -342,7 +342,7 @@ read_thread(void *unused CK_CC_UNUSED)
 }
 
 static void *
-write_thread(void *unused CK_CC_UNUSED)
+write_thread(CK_CC_UNUSED void *unused)
 {
 	struct node **entry, *e;
 	unsigned int i, j, tid;

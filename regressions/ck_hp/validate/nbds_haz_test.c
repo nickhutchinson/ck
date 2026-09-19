@@ -53,15 +53,15 @@
 
 #define STACK_CONTAINER(T, M, N) CK_CC_CONTAINER(stack_entry_t, T, M, N)
 
-struct stack_entry {
+struct CK_CC_ALIGN(8) stack_entry {
 	struct stack_entry *next;
-} CK_CC_ALIGN(8);
+};
 typedef struct stack_entry stack_entry_t;
 
-struct stack {
+struct CK_CC_PACKED CK_CC_ALIGN(16) stack {
 	struct stack_entry *head;
 	char *generation;
-} CK_CC_PACKED CK_CC_ALIGN(16);
+};
 typedef struct stack hp_stack_t;
 
 static unsigned int threshold;
@@ -141,7 +141,7 @@ stack_pop_mpmc(ck_hp_record_t *record, struct stack *target)
 }
 
 static void *
-thread(void *unused CK_CC_UNUSED)
+thread(CK_CC_UNUSED void *unused)
 {
 	struct node *entry, *e;
 	unsigned int i;

@@ -97,7 +97,7 @@ critical_section(void)
 }
 
 static void *
-thread(void *null CK_CC_UNUSED)
+thread(CK_CC_UNUSED void *null)
 {
 	unsigned int n_entries = 0;
 	int i = ITERATE;

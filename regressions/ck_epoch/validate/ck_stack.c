@@ -73,7 +73,7 @@ destructor(ck_epoch_entry_t *p)
 }
 
 static void *
-thread(void *unused CK_CC_UNUSED)
+thread(CK_CC_UNUSED void *unused)
 {
 	struct node **entry, *e;
 	ck_epoch_record_t record;

@@ -50,7 +50,7 @@ static int nthr;
 static ck_brlock_t lock = CK_BRLOCK_INITIALIZER;
 
 static void *
-thread(void *null CK_CC_UNUSED)
+thread(CK_CC_UNUSED void *null)
 {
 	ck_brlock_reader_t r;
 	int i = ITERATE;

@@ -58,7 +58,7 @@ CK_RING_PROTOTYPE(entry, entry *)
 
 static int nthr;
 static ck_ring_t *ring;
-static ck_ring_t ring_spmc CK_CC_CACHELINE;
+static CK_CC_CACHELINE ck_ring_t ring_spmc;
 static struct affinity a;
 static int size;
 static int eb;

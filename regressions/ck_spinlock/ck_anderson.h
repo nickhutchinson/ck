@@ -1,6 +1,6 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define LOCK_NAME "ck_anderson"
-#define LOCK_DEFINE static ck_spinlock_anderson_t lock CK_CC_CACHELINE
+#define LOCK_DEFINE static CK_CC_CACHELINE ck_spinlock_anderson_t lock
 #define LOCK_STATE ck_spinlock_anderson_thread_t *nad = NULL
 #define LOCK ck_spinlock_anderson_lock(&lock, &nad)
 #define UNLOCK ck_spinlock_anderson_unlock(&lock, nad)
