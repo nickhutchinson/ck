@@ -34,7 +34,7 @@
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
-#include <sys/time.h>
+#include <time.h>
 
 #include <ck_pr.h>
 #include <ck_spinlock.h>
