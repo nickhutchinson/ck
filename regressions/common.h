@@ -32,7 +32,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/time.h>
+#include <time.h>
 
 #if defined(__linux__) || defined(__DragonFly__)
 #include <sched.h>
@@ -57,11 +57,24 @@
 #if defined(_WIN32)
 #include <assert.h>
 #include <malloc.h>
+
 #define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <winsock2.h> /* for timeval */
+
+#if defined(_MSC_VER)
+struct timezone {
+	int tz_minuteswest;
+	int tz_dsttime;
+};
+#endif
+
 #define DELTA_EPOCH  11644473600000000ULL
+
 #else
 #include <signal.h>
+#include <sys/time.h>
 #include <unistd.h>
 #endif
 
