@@ -254,7 +254,7 @@
 #include <ck_stdbool.h>
 #include <ck_stdint.h>
 #include <ck_stddef.h>
-#include <sys/time.h>
+#include <ck_time.h>
 
 /*
  * If we have ck_pr_faa_64 (and, presumably, ck_pr_load_64), we
