@@ -741,18 +741,21 @@ if test "$COMPILER" = "suncc"; then
 	PTHREAD_CFLAGS="-mt -lpthread"
 elif test "$COMPILER" = "gcc" || test "$COMPILER" = "clang" || test "$COMPILER" = "mingw32" || test "$COMPILER" = "mingw64"; then
 	LD=$CC
-	SONAME="$LDNAME_MAJOR"
-	if test "$SYSTEM" = "darwin"; then
-		CC_WL_OPT="-install_name"
-		LDNAME="libck.dylib"
-		LDNAME_VERSION="libck.$VERSION.dylib"
-		LDNAME_MAJOR="libck.$VERSION_MAJOR.dylib"
-		SONAME="$LIBRARY/$LDNAME_MAJOR"
-	else
-		CC_WL_OPT="-soname"
+	if test "$COMPILER" != "mingw32" && test "$COMPILER" != "mingw64"; then
+		SONAME="$LDNAME_MAJOR"
+		if test "$SYSTEM" = "darwin"; then
+			CC_WL_OPT="-install_name"
+			LDNAME="libck.dylib"
+			LDNAME_VERSION="libck.$VERSION.dylib"
+			LDNAME_MAJOR="libck.$VERSION_MAJOR.dylib"
+			SONAME="$LIBRARY/$LDNAME_MAJOR"
+		else
+			CC_WL_OPT="-soname"
+		fi
+
+		LDFLAGS="-Wl,$CC_WL_OPT,$SONAME $LDFLAGS"
 	fi
 
-	LDFLAGS="-Wl,$CC_WL_OPT,$SONAME $LDFLAGS"
 	if test "$WANT_PIC" = "yes"; then
 		LDFLAGS="$LDFLAGS -shared -fPIC"
 		CFLAGS="$CFLAGS -fPIC"
@@ -784,10 +787,6 @@ elif test "$COMPILER" = "gcc" || test "$COMPILER" = "clang" || test "$COMPILER" 
 
 	CFLAGS="-D_BSD_SOURCE -D_DEFAULT_SOURCE -std=gnu99 -pedantic -Wall -W -Wundef -Wendif-labels -Wshadow -Wpointer-arith -Wcast-align -Wcast-qual -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Winline -Wdisabled-optimization -fstrict-aliasing -O2 -pipe -Wno-parentheses $CFLAGS"
 	PTHREAD_CFLAGS="-pthread"
-	if test "$COMPILER" = "mingw64"; then
-		ENVIRONMENT=64
-		PLATFORM=x86_64
-	fi
 	if test "$SYSTEM" = "netbsd"; then
 		CFLAGS="$CFLAGS -D_NETBSD_SOURCE"
 	fi
