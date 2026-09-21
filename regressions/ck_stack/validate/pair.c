@@ -37,7 +37,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <pthread.h>
-#include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "../../common.h"

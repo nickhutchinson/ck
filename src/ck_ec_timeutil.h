@@ -4,7 +4,7 @@
 #include <ck_ec.h>
 #include <ck_limits.h>
 #include <ck_stdint.h>
-#include <sys/time.h>
+#include <ck_time.h>
 
 #define TIME_MAX ((time_t)((1ULL << ((sizeof(time_t) * CHAR_BIT) - 1)) - 1))
 #define NSEC_MAX ((1000L * 1000 * 1000) - 1)
