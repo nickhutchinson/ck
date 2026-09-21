@@ -38,7 +38,7 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <unistd.h>
-#include <sys/time.h>
+#include <time.h>
 
 #include <ck_pr.h>
 

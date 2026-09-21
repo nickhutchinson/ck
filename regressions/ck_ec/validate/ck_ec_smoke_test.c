@@ -4,7 +4,7 @@
 #include <ck_stdbool.h>
 #include <pthread.h>
 #include <stdio.h>
-#include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 
 #define TIME_MAX ((time_t)((1ULL << ((sizeof(time_t) * CHAR_BIT) - 1)) - 1))

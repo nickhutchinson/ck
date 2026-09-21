@@ -32,7 +32,7 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <unistd.h>
-#include <sys/time.h>
+#include <time.h>
 
 #include <stdbool.h>
 #include <stddef.h>
