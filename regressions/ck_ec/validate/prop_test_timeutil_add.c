@@ -1,15 +1,8 @@
 #include <assert.h>
-#include <ck_limits.h>
 #include <ck_stdint.h>
 
 #include "../../../src/ck_ec_timeutil.h"
 #include "fuzz_harness.h"
-
-#if ULONG_MAX > 4294967295
-typedef unsigned __int128 dword_t;
-#else
-typedef uint64_t dword_t;
-#endif
 
 struct example {
 	struct timespec ts;
@@ -75,9 +68,11 @@ static struct timespec normalize_ts(const struct timespec ts)
 	return ret;
 }
 
-static dword_t ts_to_nanos(const struct timespec ts)
+static fuzz_s128_t ts_to_nanos(const struct timespec ts)
 {
-	return (dword_t)ts.tv_sec * (NSEC_MAX + 1) + ts.tv_nsec;
+	return fuzz_s128_add(fuzz_s128_mul(fuzz_s128_make_s64(ts.tv_sec),
+					   fuzz_s128_make_s64(NSEC_MAX + 1)),
+			     fuzz_s128_make_s64(ts.tv_nsec));
 }
 
 static inline int test_timespec_add(const struct example *example)
@@ -85,14 +80,20 @@ static inline int test_timespec_add(const struct example *example)
 	const struct timespec ts = normalize_ts(example->ts);
 	const struct timespec inc = normalize_ts(example->inc);
 	const struct timespec actual = timespec_add(ts, inc);
-	const dword_t nanos = ts_to_nanos(ts) + ts_to_nanos(inc);
+	const fuzz_s128_t nanos =
+	    fuzz_s128_add(ts_to_nanos(ts), ts_to_nanos(inc));
 
-	if (nanos / (NSEC_MAX + 1) > TIME_MAX) {
+	const fuzz_s128_t ceiling =
+	    ts_to_nanos((struct timespec) { TIME_MAX, NSEC_MAX });
+
+	if (fuzz_s128_cmp(nanos, ceiling) > 0) {
 		assert(actual.tv_sec == TIME_MAX);
 		assert(actual.tv_nsec == NSEC_MAX);
 	} else {
-		assert(actual.tv_sec == (time_t)(nanos / (NSEC_MAX + 1)));
-		assert(actual.tv_nsec == (long)(nanos % (NSEC_MAX + 1)));
+		assert(actual.tv_sec >= 0);
+		assert(actual.tv_nsec >= 0);
+		assert(actual.tv_nsec <= NSEC_MAX);
+		assert(fuzz_s128_cmp(ts_to_nanos(actual), nanos) == 0);
 	}
 
 	return 0;
