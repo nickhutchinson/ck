@@ -50,6 +50,12 @@
 			printf("FAIL [%#" PRIx##w " != %#" PRIx##w "]\n", a, t);	\
 			exit(EXIT_FAILURE);						\
 		}									\
+		t = (uint##w##_t)UINT64_C(0x0123456789abcdef);				\
+		a = ck_pr_load_##w(&t);							\
+		if (a != t) {								\
+			printf("FAIL [%#" PRIx##w " != %#" PRIx##w "]\n", a, t);	\
+			exit(EXIT_FAILURE);						\
+		}									\
 		for (i = 0; i < R_REPEAT; i++) {					\
 			t = (uint##w##_t)common_rand();					\
 			a = ck_pr_load_##w(&t);						\
@@ -118,7 +124,15 @@ rg_width(int m)
 int
 main(void)
 {
-	void *ptr = (void *)(intptr_t)-1;
+#ifdef CK_F_PR_LOAD_PTR
+	int object;
+	void *load;
+	void *ptr = &object;
+#endif
+#ifdef CK_F_PR_LOAD_DOUBLE
+	double double_load;
+	double double_value = 1.5;
+#endif
 
 	common_srand((unsigned int)getpid());
 
@@ -144,11 +158,25 @@ main(void)
 	ck_pr_load_64_2(&b, &a);
 	printf("%" PRIx64 ":%" PRIx64 "\n", a[0], a[1]);
 #endif
+#ifdef CK_F_PR_LOAD_DOUBLE
+	printf("ck_pr_load_double: ");
+	double_load = ck_pr_load_double(&double_value);
+	if (double_load != double_value) {
+		printf("FAIL [%f != %f]\n", double_load, double_value);
+		exit(EXIT_FAILURE);
+	}
+	printf("SUCCESS\n");
+#endif
+
+#ifdef CK_F_PR_LOAD_PTR
 	printf("ck_pr_load_ptr: ");
-	if (ck_pr_load_ptr(&ptr) != (void *)(intptr_t)(-1))
-		printf("Failed : %p != %p\n", ck_pr_load_ptr(&ptr), (void *)(intptr_t)(-1));
-	else
-		printf("SUCCESS\n");
+	load = ck_pr_load_ptr(&ptr);
+	if (load != ptr) {
+		printf("FAIL [%p != %p]\n", load, ptr);
+		exit(EXIT_FAILURE);
+	}
+	printf("SUCCESS\n");
+#endif
 
 	return (0);
 }
