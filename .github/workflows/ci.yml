@@ -162,3 +162,25 @@ jobs:
 
       - name: Test
         run: make check
+
+  windows_visual_studio:
+    name: Windows VS / ${{ matrix.target.arch }} / ${{ matrix.compiler }}
+    runs-on: ${{ matrix.target.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - msvc
+          - clang
+        target:
+          - arch: x86_64
+            runner: windows-2025
+          - arch: i686
+            runner: windows-2025
+          - arch: aarch64
+            runner: windows-11-arm
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build & Test
+        run: ./tools/ci-build-vs.ps1 -Compiler ${{ matrix.compiler }} -Arch ${{ matrix.target.arch }}
