@@ -16,6 +16,9 @@ Continuous integration is currently enabled for the following targets:
  * `linux/gcc/arm64`
  * `linux/gcc/x86-64`
  * `linux/clang/x86-64`
+ * `windows/msvc+clang-cl/x86-64`
+ * `windows/msvc+clang-cl/x86`
+ * `windows/msvc+clang-cl/arm64`
 
 ### Compile and Build
 
