@@ -162,3 +162,61 @@ jobs:
 
       - name: Test
         run: make check
+
+  windows_visual_studio:
+    name: Windows VS / ${{ matrix.target.arch }} / ${{ matrix.compiler }}
+    runs-on: ${{ matrix.target.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - msvc
+          - clang
+        target:
+          - arch: x86_64
+            vcvars_arch: x64
+            runner: windows-2025
+          - arch: i686
+            vcvars_arch: x64_x86
+            runner: windows-2025
+          - arch: aarch64
+            vcvars_arch: arm64
+            runner: windows-11-arm
+    defaults:
+      run:
+        shell: cmd
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set Visual Studio Environment
+        run: py tools\enter-vsdevshell.py ${{ matrix.target.vcvars_arch }} >> "%GITHUB_ENV%"
+
+      - name: Compiler version
+        run: |
+          cl || exit /b
+          clang-cl --version || exit /b
+
+      - name: Configure (MSVC)
+        if: matrix.compiler == 'msvc'
+        run: |
+          cmake -S . -B out -GNinja ^
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo ^
+            -DCMAKE_C_COMPILER=cl ^
+            || exit /b
+
+      - name: Configure (Clang)
+        if: matrix.compiler == 'clang'
+        run: |
+          cmake -S . -B out -GNinja ^
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo ^
+            -DCMAKE_C_COMPILER=clang-cl ^
+            -DCMAKE_C_COMPILER_TARGET=${{ matrix.target.arch }}-pc-windows-msvc ^
+            || exit /b
+
+      - name: Build
+        run: cmake --build out --verbose
+
+      - name: Test
+        run: |
+          cmake --build out --target regressions --verbose || exit /b
+          ctest --test-dir out -V || exit /b
