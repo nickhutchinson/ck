@@ -55,7 +55,8 @@
 		if (w < 10)						\
 			printf(" ");					\
 		for (__ck_i = 0; __ck_i < R_REPEAT; __ck_i++) {		\
-			uint##w##_t a = common_rand() % ((uint##w##_t)-1);	\
+			uint##w##_t a =					\
+			    (uint##w##_t)common_fastrandom();		\
 			CK_PR_DEC_T(w, a);				\
 		}							\
 		rg_width(w);						\

@@ -56,7 +56,7 @@
 			exit(EXIT_FAILURE);						\
 		}									\
 		for (i = 0; i < R_REPEAT; i++) {					\
-			t = (uint##w##_t)common_rand();					\
+			t = (uint##w##_t)common_fastrandom();				\
 			a = ck_pr_load_##w(&t);						\
 			if (a != t) {							\
 				printf("FAIL [%#" PRIx##w " != %#" PRIx##w "]\n", a, t);\

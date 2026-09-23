@@ -57,16 +57,16 @@
 		}											\
 	}
 
-#define CK_PR_BTS_B(w)					\
-	{						\
-		uint##w##_t o;				\
-		unsigned int i;				\
-		printf("ck_pr_bts_" #w ": ");		\
-		for (i = 0; i < R_REPEAT; i++) {	\
-			o = (uint##w##_t)common_rand();	\
-			CK_PR_BTS_T(w, o);		\
-		}					\
-		printf("  SUCCESS\n");			\
+#define CK_PR_BTS_B(w)						\
+	{							\
+		uint##w##_t o;					\
+		unsigned int i;					\
+		printf("ck_pr_bts_" #w ": ");			\
+		for (i = 0; i < R_REPEAT; i++) {		\
+			o = (uint##w##_t)common_fastrandom();	\
+			CK_PR_BTS_T(w, o);			\
+		}						\
+		printf("  SUCCESS\n");				\
 	}
 
 int

@@ -35,13 +35,13 @@
 	static void						\
 	run_test_##K##_##S(void)				\
 	{							\
-		int i, r;					\
+		int i;						\
+		T r;						\
 		T x = 0, y = 0;					\
 								\
 		puts("***TESTING ck_pr_"#K"_"#S"***");		\
-		common_srand((unsigned int)common_getpid());	\
 		for (i = 0; i < REPEAT; ++i) {			\
-			r = common_rand();				\
+			r = (T)common_fastrandom();		\
 			x += r;					\
 			x = P x;				\
 			y += r;					\
