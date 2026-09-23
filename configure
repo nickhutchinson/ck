@@ -790,7 +790,11 @@ elif test "$COMPILER" = "gcc" || test "$COMPILER" = "clang" || test "$COMPILER" 
 	if test "$SYSTEM" = "netbsd"; then
 		CFLAGS="$CFLAGS -D_NETBSD_SOURCE"
 	fi
-	if test "$SYSTEM" != "dragonflybsd"; then
+	if test "$SYSTEM" != "dragonflybsd" &&
+	    test "$SYSTEM" != "freebsd" &&
+	    test "$SYSTEM" != "netbsd" &&
+	    test "$SYSTEM" != "openbsd" &&
+	    test "$SYSTEM" != "darwin"; then
 		CFLAGS="$CFLAGS -D_XOPEN_SOURCE=600"
 	fi
 else

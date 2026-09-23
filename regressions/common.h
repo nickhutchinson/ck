@@ -29,19 +29,24 @@
 
 #include <ck_cc.h>
 #include <ck_pr.h>
+#include <errno.h>
 #include <stdarg.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-#if defined(__linux__) || defined(__DragonFly__)
+#if defined(__linux__)
 #include <sched.h>
-#include <sys/types.h>
+#include <sys/random.h>
 #include <sys/syscall.h>
-#if defined(__DragonFly__)
-#include <sys/sched.h>
+#include <sys/types.h>
+#elif defined(__DragonFly__)
 #include <pthread_np.h>
-#endif
+#include <sched.h>
+#include <sys/sched.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
 #elif defined(__MACH__)
 #include <errno.h>
 #include <mach/mach.h>
@@ -83,14 +88,115 @@ struct timezone {
 #define CORES 8
 #endif
 
+#if defined(_WIN32)
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-function-type" /* for GetProcAddress */
+#endif
+
+/* ProcessPrng: https://learn.microsoft.com/en-us/windows/win32/seccng/processprng */
+typedef BOOL(__stdcall _common_process_prng_t)(PBYTE buffer, SIZE_T length);
+
+__declspec(selectany) struct _common_arc4random_buf_ctx_s {
+	INIT_ONCE once_flag;
+	_common_process_prng_t *process_prng;
+} _common_arc4random_buf_ctx = { INIT_ONCE_STATIC_INIT, NULL };
+
+CK_CC_INLINE static BOOL __stdcall
+_common_arc4random_buf_init(PINIT_ONCE once, PVOID parameter, PVOID *context)
+{
+	(void)once;
+	(void)parameter;
+	(void)context;
+	HMODULE mod = LoadLibraryW(L"bcryptprimitives.dll");
+	_common_arc4random_buf_ctx.process_prng =
+	    (_common_process_prng_t *)GetProcAddress(mod, "ProcessPrng");
+	return TRUE;
+}
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+#endif /* _WIN32 */
+
+CK_CC_INLINE static void
+common_arc4random_buf(void *buf, size_t nbytes)
+{
+#if defined(_WIN32)
+	InitOnceExecuteOnce(&_common_arc4random_buf_ctx.once_flag,
+			    _common_arc4random_buf_init, NULL, NULL);
+	_common_process_prng_t *process_prng =
+	    _common_arc4random_buf_ctx.process_prng;
+	if (process_prng == NULL || !process_prng((PBYTE)buf, nbytes)) {
+		abort();
+	}
+#elif defined(__linux__)
+	while (nbytes != 0) {
+		ssize_t result = getrandom(buf, nbytes, 0);
+		if (result > 0) {
+			buf = (char *)buf + (size_t)result;
+			nbytes -= (size_t)result;
+		} else if (result < 0 && errno != EINTR) {
+			abort();
+		}
+	}
+#else
+	arc4random_buf(buf, nbytes);
+#endif
+}
+
+struct _common_fastrandom_ctx_s {
+	uint64_t s[4];
+};
+
+#if defined(_MSC_VER)
+__declspec(thread) __declspec(selectany)
+#elif defined(__MINGW32__)
+__thread __declspec(selectany)
+#else
+__thread __attribute__((weak))
+#endif
+struct _common_fastrandom_ctx_s _common_fastrandom_ctx;
+
+CK_CC_INLINE static uint64_t
+common_rotl64(uint64_t x, int k)
+{
+	return (x << k) | (x >> (64 - k));
+}
+
+/*
+ * Insecure, self-seeding, thread-safe PRNG. Uses the xoshiro256** gnerator.
+ * See: <https://prng.di.unimi.it>.
+ */
+CK_CC_INLINE static uint64_t
+common_fastrandom(void)
+{
+	uint64_t *s = _common_fastrandom_ctx.s;
+
+	while (s[0] == 0 && s[1] == 0 && s[2] == 0 && s[3] == 0) {
+		common_arc4random_buf(&_common_fastrandom_ctx.s,
+				      sizeof(_common_fastrandom_ctx.s));
+	}
+
+	uint64_t result = common_rotl64(s[1] * 5, 7) * 9;
+	uint64_t t = s[1] << 17;
+
+	s[2] ^= s[0];
+	s[3] ^= s[1];
+	s[1] ^= s[2];
+	s[0] ^= s[3];
+
+	s[2] ^= t;
+
+	s[3] = common_rotl64(s[3], 45);
+
+	return result;
+}
+
 CK_CC_INLINE static void
 common_srand(unsigned int i)
 {
-#ifdef _WIN32
-	srand(i);
-#else
-	srandom(i);
-#endif
+	(void)i;
 }
 
 CK_CC_INLINE static int
@@ -106,57 +212,34 @@ common_getpid(void)
 CK_CC_INLINE static int
 common_rand(void)
 {
-#ifdef _WIN32
-	return rand();
-#else
-	return random();
-#endif
+	uint64_t value = common_fastrandom() >> 33;
+
+	return (int)(value % ((uint64_t)RAND_MAX + 1));
 }
 
 CK_CC_INLINE static int
 common_rand_r(unsigned int *i)
 {
-#ifdef _WIN32
 	(void)i;
-
-	/*
-	 * When linked with -mthreads, rand() is thread-safe.
-	 * rand_s is also an option.
-	 */
-	return rand();
-#else
-	return rand_r(i);
-#endif
+	return common_rand();
 }
 
 CK_CC_INLINE static void
 common_srand48(long int i)
 {
-#ifdef _WIN32
-	srand(i);
-#else
-	srand48(i);
-#endif
+	(void)i;
 }
 
 CK_CC_INLINE static long int
 common_lrand48(void)
 {
-#ifdef _WIN32
-	return rand();
-#else
-	return lrand48();
-#endif
+	return (long int)(common_fastrandom() >> 33);
 }
 
 CK_CC_INLINE static double
 common_drand48(void)
 {
-#ifdef _WIN32
-	return (double)rand()/RAND_MAX;
-#else
-	return drand48();
-#endif
+	return (double)(common_fastrandom() >> 11) * 0x1.0p-53;
 }
 
 CK_CC_INLINE static void
