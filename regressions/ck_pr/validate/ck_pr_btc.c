@@ -56,16 +56,16 @@
 		}								\
 	}
 
-#define CK_PR_BTC_B(w)					\
-	{						\
-		uint##w##_t o;				\
-		unsigned int i;				\
-		printf("ck_pr_btc_" #w ": ");		\
-		for (i = 0; i < R_REPEAT; i++) {	\
-			o = (uint##w##_t)common_rand();	\
-			CK_PR_BTC_T(w, o);		\
-		}					\
-		printf("  SUCCESS\n");			\
+#define CK_PR_BTC_B(w)						\
+	{							\
+		uint##w##_t o;					\
+		unsigned int i;					\
+		printf("ck_pr_btc_" #w ": ");			\
+		for (i = 0; i < R_REPEAT; i++) {		\
+			o = (uint##w##_t)common_fastrandom();	\
+			CK_PR_BTC_T(w, o);			\
+		}						\
+		printf("  SUCCESS\n");				\
 	}
 
 int

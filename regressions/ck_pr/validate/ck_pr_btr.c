@@ -48,7 +48,7 @@
 		uint##w##_t r = v, c = v;								\
 		bool t;											\
 		for (j = 0; j < (w); j++) {								\
-			c &= (uint##w##_t)-1 ^ (1 << j);						\
+			c &= (uint##w##_t)-1 ^ ((uint##w##_t)1 << j);					\
 			t = ck_pr_btr_##w(&r, j);							\
 			if ((t && !BM(v, j)) || (r != c)) {						\
 				printf("FAIL [%" PRIx##w ":%u != %" PRIx##w ":%u]\n", r, j, c, j);	\
@@ -57,16 +57,16 @@
 		}											\
 	}
 
-#define CK_PR_BTR_B(w)					\
-	{						\
-		uint##w##_t o;				\
-		unsigned int i;				\
-		printf("ck_pr_btr_" #w ": ");		\
-		for (i = 0; i < R_REPEAT; i++) {	\
-			o = (uint##w##_t)common_rand();	\
-			CK_PR_BTR_T(w, o);		\
-		}					\
-		printf("  SUCCESS\n");			\
+#define CK_PR_BTR_B(w)						\
+	{							\
+		uint##w##_t o;					\
+		unsigned int i;					\
+		printf("ck_pr_btr_" #w ": ");			\
+		for (i = 0; i < R_REPEAT; i++) {		\
+			o = (uint##w##_t)common_fastrandom();	\
+			CK_PR_BTR_T(w, o);			\
+		}						\
+		printf("  SUCCESS\n");				\
 	}
 
 int

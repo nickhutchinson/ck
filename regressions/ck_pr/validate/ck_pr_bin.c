@@ -35,14 +35,14 @@
 	static void							\
 	run_test_##K##_##S(void)					\
 	{								\
-		int i, r;						\
+		int i;							\
+		T r;							\
 		T serial_result = 65535;				\
 		T ck_result = 65535;					\
 									\
 		puts("***TESTING ck_pr_" #K "_" #S "***");		\
-		common_srand((unsigned int)common_getpid());			\
 		for (i = 0; i < REPEAT; ++i) {				\
-			r = common_rand();					\
+			r = (T)common_fastrandom();			\
 			serial_result = serial_result P r;		\
 			ck_pr_##K##_##S(&ck_result, r);			\
 		}							\
@@ -55,7 +55,7 @@
 					     : puts("FAILURE.");	\
 									\
 		return;							\
-	}								\
+	}
 
 #define GENERATE_TEST(K, P)				\
 	TEST_BINARY(K, int, int, P, d)			\

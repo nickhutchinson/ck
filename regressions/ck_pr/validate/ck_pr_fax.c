@@ -61,13 +61,13 @@ TEST_FAX_FN_S(uint, unsigned int)
 	static void									\
 	run_test_##K##_##S(void)							\
 	{										\
-		int i, r;								\
+		int i;									\
+		T r;									\
 		T x = 0, y = 0, x_b, y_b;						\
 											\
 		puts("***TESTING ck_pr_"#K"_"#S"***");					\
-		common_srand((unsigned int)common_getpid());					\
 		for (i = 0; i < REPEAT; ++i) {						\
-			r = common_rand();							\
+			r = (T)common_fastrandom();					\
 			x_b = test_##K##_##S(&x, r);					\
 			y_b = ck_pr_##K##_##S(&y, r);					\
 											\
@@ -89,7 +89,7 @@ TEST_FAX_FN_S(uint, unsigned int)
 			 : puts("FAILURE.");						\
 											\
 		return;									\
-	}										\
+	}
 
 
 #define GENERATE_TEST(K)				\
