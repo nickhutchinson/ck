@@ -128,7 +128,7 @@ stack_thread(CK_CC_UNUSED void *unused)
 		if (critical) {
 			j = common_rand_r(&seed) % critical;
 			while (j--)
-				__asm__ __volatile__("" ::: "memory");
+				ck_pr_barrier();
 		}
 
 		assert (previous >= entry->value);
