@@ -32,16 +32,56 @@ set(CK_CFLAGS_GNU
     -pipe
 )
 
-add_compile_definitions(_BSD_SOURCE _DEFAULT_SOURCE)
+# Clang takes most of the GCC flags. But we don't want strict aliasing when targeting the MSVC ABI
+# -- Windows SDK headers violate TBAA. (Clang-cl already default-disables strict aliasing when
+# invoked via the clang-cl driver, but not via the GNU-style driver, so we forcibly disable strict
+# aliasing.)
+set(CK_CFLAGS_CLANG ${CK_CFLAGS_GNU})
+if(MSVC_VERSION)
+    list(REMOVE_ITEM CK_CFLAGS_CLANG -fstrict-aliasing)
+    list(APPEND CK_CFLAGS_CLANG -fno-strict-aliasing)
+endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
-    add_compile_definitions(_NETBSD_SOURCE)
+set(CK_CFLAGS_MSVC
+    /W4
+    /wd4100  # warning C4100: '<param>': unreferenced parameter
+    /wd4146  # warning C4146: unary minus operator applied to unsigned type, result still unsigned
+    /wd4324  # warning C4324: '<type>': structure was padded due to alignment specifier
+    /wd4702  # warning C4702: unreachable code
+
+    /permissive-
+)
+
+# Qualify GNU-style options for the clang-cl driver -- not all are accepted directly by clang-cl,
+# and others have different meanings (e.g. -Wall).
+list(TRANSFORM CK_CFLAGS_CLANG PREPEND "/clang:" OUTPUT_VARIABLE CK_CFLAGS_CLANGCL)
+
+if(MSVC AND CMAKE_C_COMPILER_ID MATCHES "Clang")
+    add_compile_options(${CK_CFLAGS_CLANGCL})
+elseif(MSVC)
+    add_compile_options(${CK_CFLAGS_MSVC})
+elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
+    add_compile_options(${CK_CFLAGS_CLANG})
+else()
+    add_compile_options(${CK_CFLAGS_GNU})
 endif()
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "DragonFly")
-    add_compile_definitions(_XOPEN_SOURCE=600)
+
+if(NOT MSVC_VERSION)
+    add_compile_definitions(_BSD_SOURCE _DEFAULT_SOURCE)
+
+    if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
+        add_compile_definitions(_NETBSD_SOURCE)
+    endif()
+    if(NOT CMAKE_SYSTEM_NAME STREQUAL "DragonFly")
+        add_compile_definitions(_XOPEN_SOURCE=600)
+    endif()
+    if(MINGW OR CYGWIN)
+        add_link_options(-mthreads)
+    endif()
 endif()
-if(MINGW OR CYGWIN)
-    add_link_options(-mthreads)
+
+if(WIN32)
+    add_compile_definitions(_CRT_NONSTDC_NO_WARNINGS _CRT_SECURE_NO_WARNINGS)
 endif()
 
 # Determine the effective target processor -- CMAKE_SYSTEM_PROCESSOR may reflect the host system
@@ -264,6 +304,7 @@ if(CK_BUILD_SHARED)
         OUTPUT_NAME ck
         VERSION "${PROJECT_VERSION}"
         SOVERSION "${PROJECT_VERSION_MAJOR}"
+        WINDOWS_EXPORT_ALL_SYMBOLS ON
     )
     list(APPEND CK_LIBRARY_TARGETS ck_shared)
 endif()
@@ -271,7 +312,13 @@ endif()
 if(CK_BUILD_STATIC)
     add_library(ck_static STATIC $<TARGET_OBJECTS:ck_objects>)
     target_link_libraries(ck_static PUBLIC ck_headers)
-    set_target_properties(ck_static PROPERTIES OUTPUT_NAME ck)
+    if(MSVC_VERSION)
+        # Give the static library a distinct name to avoid clashing with the shared library's
+        # importlib.
+        set_target_properties(ck_static PROPERTIES OUTPUT_NAME ck_static)
+    else()
+        set_target_properties(ck_static PROPERTIES OUTPUT_NAME ck)
+    endif()
     list(APPEND CK_LIBRARY_TARGETS ck_static)
 endif()
 

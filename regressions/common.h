@@ -303,7 +303,11 @@ prefix##_common_win_alarm(void *unused)									\
 #define	COMMON_ALARM_INIT(prefix, alarm_event_name, duration)
 #endif
 
+#if defined(_MSC_VER)
+#define common_alignof(x) __alignof(x)
+#else
 #define common_alignof(x) __alignof__(x)
+#endif
 
 /* 
  * Modelled after C11's aligned_alloc. Due to platform limitations, memory must
@@ -497,7 +501,9 @@ aff_iterate_core(CK_CC_UNUSED struct affinity *acb, unsigned int *core)
 CK_CC_INLINE static uint64_t
 rdtsc(void)
 {
-#if defined(__x86_64__)
+#if defined(_MSC_VER)
+	return ReadTimeStampCounter();
+#elif defined(__x86_64__)
 	uint32_t eax = 0, edx;
 #if defined(CK_MD_RDTSCP)
 	__asm__ __volatile__("rdtscp"

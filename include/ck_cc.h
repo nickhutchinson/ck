@@ -28,7 +28,9 @@
 #ifndef CK_CC_H
 #define CK_CC_H
 
-#if defined(__GNUC__) || defined(__SUNPRO_C)
+#if defined(_MSC_VER)
+#include "msvc/ck_cc.h"
+#elif defined(__GNUC__) || defined(__SUNPRO_C)
 #include "gcc/ck_cc.h"
 #endif
 
