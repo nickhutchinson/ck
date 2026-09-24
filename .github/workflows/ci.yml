@@ -166,8 +166,6 @@ jobs:
   windows_visual_studio:
     name: Windows VS / ${{ matrix.target.arch }} / ${{ matrix.compiler }}
     runs-on: ${{ matrix.target.runner }}
-    env:
-      VSCMD_SKIP_SENDTELEMETRY: '1'
     strategy:
       fail-fast: false
       matrix:
@@ -187,31 +185,36 @@ jobs:
             vs_arch: arm64
             vs_host_arch: arm64
             runner: windows-11-arm
+    env:
+      VSCMD_SKIP_SENDTELEMETRY: '1'
     steps:
       - uses: actions/checkout@v7
 
       - name: Locate Visual Studio
         run: |
-          $vswhere = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe'
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
           $vsRoot = & $vswhere -latest -products '*' -property installationPath
-          if (-not $vsRoot) { throw 'Could not find a Visual Studio instance' }
+          if (-not $vsRoot) { throw 'Could not find Visual Studio' }
           "VS_INSTALL_ROOT=$vsRoot" >> $env:GITHUB_ENV
 
       - name: Build and test
         run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+
           & "$env:VS_INSTALL_ROOT\Common7\Tools\Launch-VsDevShell.ps1" `
             -Arch ${{ matrix.target.vs_arch }} `
             -HostArch ${{ matrix.target.vs_host_arch }} `
             -SkipAutomaticLocation
-          $ErrorActionPreference = 'Stop'
-          $PSNativeCommandUseErrorActionPreference = $true
+
+          cmake -E false
 
           Write-Output '::group::Compiler version'
-          cl.exe
+          cl
           clang-cl --version
           Write-Output '::endgroup::'
 
-          Write-Output '::group::Configure (${{ matrix.compiler }})'
+          Write-Output '::group::Configure'
           if ('${{ matrix.compiler }}' -eq 'msvc') {
             cmake -S . -B out -G Ninja `
               -DCMAKE_BUILD_TYPE=RelWithDebInfo `
