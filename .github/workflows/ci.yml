@@ -166,6 +166,8 @@ jobs:
   windows_visual_studio:
     name: Windows VS / ${{ matrix.target.arch }} / ${{ matrix.compiler }}
     runs-on: ${{ matrix.target.runner }}
+    env:
+      VSCMD_SKIP_SENDTELEMETRY: '1'
     strategy:
       fail-fast: false
       matrix:
@@ -174,49 +176,73 @@ jobs:
           - clang
         target:
           - arch: x86_64
-            vcvars_arch: x64
+            vs_arch: amd64
+            vs_host_arch: amd64
             runner: windows-2025
           - arch: i686
-            vcvars_arch: x64_x86
+            vs_arch: x86
+            vs_host_arch: amd64
             runner: windows-2025
           - arch: aarch64
-            vcvars_arch: arm64
+            vs_arch: arm64
+            vs_host_arch: arm64
             runner: windows-11-arm
-    defaults:
-      run:
-        shell: cmd
     steps:
       - uses: actions/checkout@v7
 
-      - name: Set Visual Studio Environment
-        run: py tools\enter-vsdevshell.py ${{ matrix.target.vcvars_arch }} >> "%GITHUB_ENV%"
+      - name: Locate Visual Studio
+        run: |
+          $vswhere = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe'
+          $vsRoot = & $vswhere -latest -products '*' -property installationPath
+          if (-not $vsRoot) { throw 'Could not find a Visual Studio instance' }
+          "VS_INSTALL_ROOT=$vsRoot" >> $env:GITHUB_ENV
 
       - name: Compiler version
         run: |
-          cl || exit /b
-          clang-cl --version || exit /b
+          & "$env:VS_INSTALL_ROOT\Common7\Tools\Launch-VsDevShell.ps1" `
+            -Arch ${{ matrix.target.vs_arch }} `
+            -HostArch ${{ matrix.target.vs_host_arch }} `
+            -SkipAutomaticLocation
+          cl.exe
+          clang-cl --version
 
       - name: Configure (MSVC)
         if: matrix.compiler == 'msvc'
         run: |
-          cmake -S . -B out -GNinja ^
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo ^
-            -DCMAKE_C_COMPILER=cl ^
-            || exit /b
+          & "$env:VS_INSTALL_ROOT\Common7\Tools\Launch-VsDevShell.ps1" `
+            -Arch ${{ matrix.target.vs_arch }} `
+            -HostArch ${{ matrix.target.vs_host_arch }} `
+            -SkipAutomaticLocation
+          cmake -S . -B out -G Ninja `
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+            -DCMAKE_C_COMPILER=cl
 
       - name: Configure (Clang)
         if: matrix.compiler == 'clang'
         run: |
-          cmake -S . -B out -GNinja ^
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo ^
-            -DCMAKE_C_COMPILER=clang-cl ^
-            -DCMAKE_C_COMPILER_TARGET=${{ matrix.target.arch }}-pc-windows-msvc ^
-            || exit /b
+          & "$env:VS_INSTALL_ROOT\Common7\Tools\Launch-VsDevShell.ps1" `
+            -Arch ${{ matrix.target.vs_arch }} `
+            -HostArch ${{ matrix.target.vs_host_arch }} `
+            -SkipAutomaticLocation
+          cmake -S . -B out -G Ninja `
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+            -DCMAKE_C_COMPILER=clang-cl `
+            -DCMAKE_C_COMPILER_TARGET=${{ matrix.target.arch }}-pc-windows-msvc
 
       - name: Build
-        run: cmake --build out --verbose
+        run: |
+          & "$env:VS_INSTALL_ROOT\Common7\Tools\Launch-VsDevShell.ps1" `
+            -Arch ${{ matrix.target.vs_arch }} `
+            -HostArch ${{ matrix.target.vs_host_arch }} `
+            -SkipAutomaticLocation
+          cmake --build out --verbose
 
       - name: Test
         run: |
-          cmake --build out --target regressions --verbose || exit /b
-          ctest --test-dir out -V || exit /b
+          & "$env:VS_INSTALL_ROOT\Common7\Tools\Launch-VsDevShell.ps1" `
+            -Arch ${{ matrix.target.vs_arch }} `
+            -HostArch ${{ matrix.target.vs_host_arch }} `
+            -SkipAutomaticLocation
+          cmake --build out --target regressions --verbose
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ctest --test-dir out -V
