@@ -197,52 +197,38 @@ jobs:
           if (-not $vsRoot) { throw 'Could not find a Visual Studio instance' }
           "VS_INSTALL_ROOT=$vsRoot" >> $env:GITHUB_ENV
 
-      - name: Compiler version
+      - name: Build and test
         run: |
           & "$env:VS_INSTALL_ROOT\Common7\Tools\Launch-VsDevShell.ps1" `
             -Arch ${{ matrix.target.vs_arch }} `
             -HostArch ${{ matrix.target.vs_host_arch }} `
             -SkipAutomaticLocation
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+
+          Write-Output '::group::Compiler version'
           cl.exe
           clang-cl --version
+          Write-Output '::endgroup::'
 
-      - name: Configure (MSVC)
-        if: matrix.compiler == 'msvc'
-        run: |
-          & "$env:VS_INSTALL_ROOT\Common7\Tools\Launch-VsDevShell.ps1" `
-            -Arch ${{ matrix.target.vs_arch }} `
-            -HostArch ${{ matrix.target.vs_host_arch }} `
-            -SkipAutomaticLocation
-          cmake -S . -B out -G Ninja `
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo `
-            -DCMAKE_C_COMPILER=cl
+          Write-Output '::group::Configure (${{ matrix.compiler }})'
+          if ('${{ matrix.compiler }}' -eq 'msvc') {
+            cmake -S . -B out -G Ninja `
+              -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+              -DCMAKE_C_COMPILER=cl
+          } else {
+            cmake -S . -B out -G Ninja `
+              -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+              -DCMAKE_C_COMPILER=clang-cl `
+              -DCMAKE_C_COMPILER_TARGET=${{ matrix.target.arch }}-pc-windows-msvc
+          }
+          Write-Output '::endgroup::'
 
-      - name: Configure (Clang)
-        if: matrix.compiler == 'clang'
-        run: |
-          & "$env:VS_INSTALL_ROOT\Common7\Tools\Launch-VsDevShell.ps1" `
-            -Arch ${{ matrix.target.vs_arch }} `
-            -HostArch ${{ matrix.target.vs_host_arch }} `
-            -SkipAutomaticLocation
-          cmake -S . -B out -G Ninja `
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo `
-            -DCMAKE_C_COMPILER=clang-cl `
-            -DCMAKE_C_COMPILER_TARGET=${{ matrix.target.arch }}-pc-windows-msvc
-
-      - name: Build
-        run: |
-          & "$env:VS_INSTALL_ROOT\Common7\Tools\Launch-VsDevShell.ps1" `
-            -Arch ${{ matrix.target.vs_arch }} `
-            -HostArch ${{ matrix.target.vs_host_arch }} `
-            -SkipAutomaticLocation
+          Write-Output '::group::Build'
           cmake --build out --verbose
+          Write-Output '::endgroup::'
 
-      - name: Test
-        run: |
-          & "$env:VS_INSTALL_ROOT\Common7\Tools\Launch-VsDevShell.ps1" `
-            -Arch ${{ matrix.target.vs_arch }} `
-            -HostArch ${{ matrix.target.vs_host_arch }} `
-            -SkipAutomaticLocation
+          Write-Output '::group::Test'
           cmake --build out --target regressions --verbose
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           ctest --test-dir out -V
+          Write-Output '::endgroup::'
