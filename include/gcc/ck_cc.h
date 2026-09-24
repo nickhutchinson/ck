@@ -48,13 +48,13 @@
 	       return (T *)(void *)((char *)p - __builtin_offsetof(T, M));     \
        }
 
-#if defined(__x86_64__) || defined(__x86__)
+#if defined(__x86_64__) || defined(__i386__)
 #define CK_CC_IMM_U32 "Z"
 #define CK_CC_IMM_S32 "e"
 #else
 #define CK_CC_IMM_U32 CK_CC_IMM
 #define CK_CC_IMM_S32 CK_CC_IMM
-#endif /* __x86_64__ || __x86__ */
+#endif /* __x86_64__ || __i386__ */
 #endif
 
 #ifdef __OPTIMIZE__

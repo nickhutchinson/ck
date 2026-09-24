@@ -1,2 +1,2 @@
-CFLAGS+=-m32 -D__x86__
+CFLAGS+=-m32
 LDFLAGS+=-m32

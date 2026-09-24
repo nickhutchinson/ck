@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Samy Al Bahra.
+ * Copyright 2026 The Concurrency Kit authors.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,50 +24,25 @@
  * SUCH DAMAGE.
  */
 
-#ifndef CK_MD_H
-#define CK_MD_H
+#ifndef CK_PTHREAD_COMPAT_H
+#define CK_PTHREAD_COMPAT_H
 
-#ifndef CK_MD_CACHELINE
-#define CK_MD_CACHELINE 64
-#endif
+typedef struct ck_pthread_context *pthread_t;
+typedef struct ck_pthread_attr pthread_attr_t;
 
-#ifndef CK_MD_PAGESIZE
-#define CK_MD_PAGESIZE (4096)
-#endif
+typedef struct {
+	void *Storage;
+} pthread_mutex_t;
 
-#ifndef @RTM_ENABLE@
-#define @RTM_ENABLE@
-#endif /* @RTM_ENABLE@ */
+#define PTHREAD_MUTEX_INITIALIZER { 0 }
 
-#ifndef @LSE_ENABLE@
-#define @LSE_ENABLE@
-#endif /* @LSE_ENABLE@ */
+int pthread_create(pthread_t *thread,
+    const pthread_attr_t *attr,
+    void *(*start_routine)(void *),
+    void *arg);
+int pthread_join(pthread_t thread, void **value_ptr);
 
-#ifndef @POINTER_PACK_ENABLE@
-#define @POINTER_PACK_ENABLE@
-#endif /* @POINTER_PACK_ENABLE@ */
+int pthread_mutex_lock(pthread_mutex_t *mutex);
+int pthread_mutex_unlock(pthread_mutex_t *mutex);
 
-#ifndef @SSE_DISABLE@
-#define @SSE_DISABLE@
-#endif /* @SSE_DISABLE@ */
-
-#ifndef @PPC32_LWSYNC_ENABLE@
-#define @PPC32_LWSYNC_ENABLE@
-#endif /* @PPC32_LWSYNC_ENABLE@ */
-
-#ifndef @VMA_BITS@
-#define @VMA_BITS@ @VMA_BITS_VALUE@
-#endif /* @VMA_BITS@ */
-
-#ifndef @MM@
-#define @MM@
-#endif /* @MM@ */
-
-#ifndef @DISABLE_DOUBLE@
-#define @DISABLE_DOUBLE@
-#endif /* @DISABLE_DOUBLE@ */
-
-#define CK_VERSION "@VERSION@"
-#define CK_GIT_SHA "@GIT_SHA@"
-
-#endif /* CK_MD_H */
+#endif /* CK_PTHREAD_COMPAT_H */

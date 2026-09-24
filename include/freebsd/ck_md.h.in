@@ -99,10 +99,9 @@
 #define CK_MD_CC_BUILTIN_DISABLE 1
 
 /*
- * CK expects those, which are normally defined by the build system.
+ * Map platform defines that differ from the ones CK uses.
  */
-#if defined(__i386__) && !defined(__x86__)
-#define __x86__
+#if defined(__i386__)
 /*
  * If x86 becomes more relevant, we may want to consider importing in
  * __mbk() to avoid potential issues around false sharing.

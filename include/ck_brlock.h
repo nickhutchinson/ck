@@ -188,7 +188,8 @@ ck_brlock_read_lock(struct ck_brlock *br, struct ck_brlock_reader *reader)
 		while (ck_pr_load_uint(&br->writer) == true)
 			ck_pr_stall();
 
-#if defined(__x86__) || defined(__x86_64__)
+#if defined(__i386__) || (defined(__x86_64__) && !defined(__arm64ec__)) ||     \
+    defined(_M_IX86) || (defined(_M_X64) && !defined(_M_ARM64EC))
 		ck_pr_fas_uint(&reader->n_readers, 1);
 
 		/*
@@ -236,7 +237,8 @@ ck_brlock_read_trylock(struct ck_brlock *br,
 			ck_pr_stall();
 		}
 
-#if defined(__x86__) || defined(__x86_64__)
+#if defined(__i386__) || (defined(__x86_64__) && !defined(__arm64ec__)) ||     \
+    defined(_M_IX86) || (defined(_M_X64) && !defined(_M_ARM64EC))
 		ck_pr_fas_uint(&reader->n_readers, 1);
 
 		/*

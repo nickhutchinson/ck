@@ -34,6 +34,20 @@
 
 #include "../../common.h"
 
+/*
+ * Prevent the compiler from eliminating the computation of `value`.
+ */
+CK_CC_INLINE static void
+escape(uint64_t value)
+{
+#if defined(_MSC_VER) && !defined(__clang__)
+	volatile uint64_t dummy = value;
+	(void)dummy;
+#else
+	__asm__ __volatile__("" :: "r"(value));
+#endif
+}
+
 #ifndef STEPS
 #define STEPS (65536 * 64)
 #endif
@@ -213,7 +227,7 @@ static CK_CC_FORCE_INLINE void bench32(const struct ck_ec_mode mode)
 		value ^= ck_ec32_value(&ec);
 		value ^= ck_ec32_value(&ec);
 
-		__asm__ volatile("" :: "r"(value));
+		escape(value);
 		a += rdtsc() - s - baseline;
 	}
 
@@ -352,7 +366,7 @@ static CK_CC_FORCE_INLINE void bench64(const struct ck_ec_mode mode)
 		value ^= ck_ec64_value(&ec);
 		value ^= ck_ec64_value(&ec);
 
-		__asm__ volatile("" :: "r"(value));
+		escape(value);
 		a += rdtsc() - s - baseline;
 	}
 

@@ -30,6 +30,8 @@
 
 #if defined(__GNUC__) || defined(__SUNPRO_C)
 #include "gcc/ck_cc.h"
+#elif defined(_MSC_VER)
+#include "msvc/ck_cc.h"
 #endif
 
 #ifndef CK_CC_RESTRICT

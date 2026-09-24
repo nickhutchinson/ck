@@ -41,7 +41,9 @@
  * trylock functionality on availability of 32-bit or 64-bit fetch-and-add
  * and compare-and-swap. This code path is only applied to x86*.
  */
-#if defined(CK_MD_TSO) && (defined(__x86__) || defined(__x86_64__))
+#if defined(CK_MD_TSO) &&                                                      \
+    (defined(__i386__) || (defined(__x86_64__) && !defined(__arm64ec__)) ||    \
+	defined(_M_IX86) || (defined(_M_X64) && !defined(_M_ARM64EC)))
 #if defined(CK_F_PR_FAA_32) && defined(CK_F_PR_INC_16) && defined(CK_F_PR_CAS_32)
 #define CK_SPINLOCK_TICKET_TYPE		uint32_t
 #define CK_SPINLOCK_TICKET_TYPE_BASE	uint16_t
