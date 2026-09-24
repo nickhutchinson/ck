@@ -121,7 +121,7 @@ stack_thread(void *buffer)
 		if (critical) {
 			j = common_rand_r(&seed) % critical;
 			while (j--)
-				__asm__ __volatile__("" ::: "memory");
+				ck_pr_barrier();
 		}
 
 #if defined(MPMC)

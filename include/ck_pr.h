@@ -47,7 +47,9 @@
 #endif
 #endif
 
-#if !CK_USE_CC_BUILTINS
+#if defined(_MSC_VER)
+#include "msvc/ck_pr.h"
+#elif !CK_USE_CC_BUILTINS
 #if defined(__x86_64__)
 #include "gcc/x86_64/ck_pr.h"
 #elif defined(__x86__)
@@ -69,7 +71,7 @@
 #elif !defined(__GNUC__)
 #error Your platform is unsupported
 #endif
-#endif /* !CK_USE_CC_BUILTINS */
+#endif /* _MSC_VER */
 
 #if defined(__GNUC__)
 #include "gcc/ck_pr.h"

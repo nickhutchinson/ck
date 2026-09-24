@@ -19,8 +19,16 @@ add_library(ck_regression_support INTERFACE)
 target_compile_definitions(ck_regression_support
     INTERFACE _GNU_SOURCE CORES=${CK_REGRESSION_CORES}
 )
-target_link_libraries(ck_regression_support INTERFACE Threads::Threads)
-target_link_libraries(ck_regression_support INTERFACE m)
+if(MSVC_VERSION)
+    add_library(ck_pthread_compat STATIC win32/pthread.c)
+    target_include_directories(ck_pthread_compat PUBLIC win32)
+    target_link_libraries(ck_regression_support INTERFACE ck_pthread_compat)
+else()
+    target_link_libraries(ck_regression_support INTERFACE Threads::Threads)
+endif()
+if(UNIX)
+    target_link_libraries(ck_regression_support INTERFACE m)
+endif()
 
 if(TARGET ck_static)
     set(CK_REGRESSION_LIBRARY ck_static)

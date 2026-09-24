@@ -3,7 +3,7 @@
 CK_CC_INLINE static void
 spin_lock(volatile unsigned int *lock)
 {
-#ifdef __x86_64__
+#if defined(__x86_64__) && !defined(__arm64ec__)
             __asm__ __volatile__(
                     "\n1:\t"
                     "lock ; decl %0\n\t"
@@ -24,7 +24,7 @@ spin_lock(volatile unsigned int *lock)
 CK_CC_INLINE static void
 spin_unlock(volatile unsigned int *lock)
 {
-#ifdef __x86_64__
+#if defined(__x86_64__) && !defined(__arm64ec__)
         __asm__ __volatile__("movl $1,%0" :"=m" (*lock) :: "memory");
 #else
 	*lock = 0;
