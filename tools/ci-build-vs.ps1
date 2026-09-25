@@ -28,11 +28,12 @@ $vsRoot = Run "'$vswhere' -latest -products '*' -property installationPath" {
 }
 if (-not $vsRoot) { throw 'Could not find Visual Studio' }
 
-# OSArchitecture reflects the host even if PowerShell runs under emulation.
-$hostArch = switch ([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture) {
-    'X64' { 'amd64' }
-    'Arm64' { 'arm64' }
-    default { throw 'Unsupported Visual Studio host architecture' }
+# Query the Windows guest CPU, not the PowerShell process (which may be emulated).
+$architecture = (Get-CimInstance Win32_Processor | Select-Object -First 1).Architecture
+$hostArch = switch ($architecture) {
+    9 { 'amd64' }
+    12 { 'arm64' }
+    default { throw "Unsupported Windows processor architecture: $architecture" }
 }
 
 & "$vsRoot\Common7\Tools\Launch-VsDevShell.ps1" `
