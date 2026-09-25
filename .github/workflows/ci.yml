@@ -190,28 +190,26 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Locate Visual Studio
-        run: |
-          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-          $vsRoot = Trace-Command ParameterBinding -PSHost {
-            & $vswhere -latest -products '*' -property installationPath
-          }
-          if (-not $vsRoot) { throw 'Could not find Visual Studio' }
-          "VS_INSTALL_ROOT=$vsRoot" >> $env:GITHUB_ENV
-
       - name: Build and test
         run: |
           $ErrorActionPreference = 'Stop'
           $PSNativeCommandUseErrorActionPreference = $true
 
-          & "$env:VS_INSTALL_ROOT\Common7\Tools\Launch-VsDevShell.ps1" `
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          Write-Host "+ '$vswhere' -latest -products '*' -property installationPath"
+          $vsRoot = & $vswhere -latest -products '*' -property installationPath
+          if (-not $vsRoot) { throw 'Could not find Visual Studio' }
+
+          & "$vsRoot\Common7\Tools\Launch-VsDevShell.ps1" `
             -Arch ${{ matrix.target.vs_arch }} `
             -HostArch ${{ matrix.target.vs_host_arch }} `
             -SkipAutomaticLocation -NoLogo
 
           Write-Output '::group::Compiler version'
-          Trace-Command ParameterBinding -PSHost { cl }
-          Trace-Command ParameterBinding -PSHost { clang-cl --version }
+          Write-Host '+ cl'
+          cl
+          Write-Host '+ clang-cl --version'
+          clang-cl --version
           Write-Output '::endgroup::'
 
           Write-Output '::group::Configure'
@@ -222,14 +220,18 @@ jobs:
             $cmakeArgs += '-DCMAKE_C_COMPILER=clang-cl'
             $cmakeArgs += '-DCMAKE_C_COMPILER_TARGET=${{ matrix.target.arch }}-pc-windows-msvc'
           }
-          Trace-Command ParameterBinding -PSHost { cmake @cmakeArgs }
+          Write-Host "+ cmake $($cmakeArgs -join ' ')"
+          cmake @cmakeArgs
           Write-Output '::endgroup::'
 
           Write-Output '::group::Build'
-          Trace-Command ParameterBinding -PSHost { cmake --build out --verbose }
+          Write-Host '+ cmake --build out --verbose'
+          cmake --build out --verbose
           Write-Output '::endgroup::'
 
           Write-Output '::group::Test'
-          Trace-Command ParameterBinding -PSHost { cmake --build out --target regressions --verbose }
-          Trace-Command ParameterBinding -PSHost { ctest --test-dir out -V }
+          Write-Host '+ cmake --build out --target regressions --verbose'
+          cmake --build out --target regressions --verbose
+          Write-Host '+ ctest --test-dir out -V'
+          ctest --test-dir out -V
           Write-Output '::endgroup::'

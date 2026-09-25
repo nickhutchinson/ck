@@ -21,8 +21,8 @@ Continuous integration is currently enabled for the following targets:
  * `windows/msvc+clang-cl/arm64`
 
 The Visual Studio CI job groups compiler checks, configuration, build, and tests
-in one PowerShell session so they share the developer environment. Its log
-traces each native executable and its arguments.
+in one PowerShell session so they share the developer environment. The log
+prints each native command line with a `+` prefix before running it.
 
 ### Compile and Build
 
