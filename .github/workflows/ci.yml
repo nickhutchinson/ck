@@ -192,9 +192,10 @@ jobs:
 
       - name: Locate Visual Studio
         run: |
-          Set-PSDebug -Trace 1
           $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-          $vsRoot = & $vswhere -latest -products '*' -property installationPath
+          $vsRoot = Trace-Command ParameterBinding -PSHost {
+            & $vswhere -latest -products '*' -property installationPath
+          }
           if (-not $vsRoot) { throw 'Could not find Visual Studio' }
           "VS_INSTALL_ROOT=$vsRoot" >> $env:GITHUB_ENV
 
@@ -207,11 +208,10 @@ jobs:
             -Arch ${{ matrix.target.vs_arch }} `
             -HostArch ${{ matrix.target.vs_host_arch }} `
             -SkipAutomaticLocation -NoLogo
-          Set-PSDebug -Trace 1
 
           Write-Output '::group::Compiler version'
-          cl
-          clang-cl --version
+          Trace-Command ParameterBinding -PSHost { cl }
+          Trace-Command ParameterBinding -PSHost { clang-cl --version }
           Write-Output '::endgroup::'
 
           Write-Output '::group::Configure'
@@ -222,15 +222,14 @@ jobs:
             $cmakeArgs += '-DCMAKE_C_COMPILER=clang-cl'
             $cmakeArgs += '-DCMAKE_C_COMPILER_TARGET=${{ matrix.target.arch }}-pc-windows-msvc'
           }
-          Write-Output "+ cmake $($cmakeArgs -join ' ')"
-          cmake @cmakeArgs
+          Trace-Command ParameterBinding -PSHost { cmake @cmakeArgs }
           Write-Output '::endgroup::'
 
           Write-Output '::group::Build'
-          cmake --build out --verbose
+          Trace-Command ParameterBinding -PSHost { cmake --build out --verbose }
           Write-Output '::endgroup::'
 
           Write-Output '::group::Test'
-          cmake --build out --target regressions --verbose
-          ctest --test-dir out -V
+          Trace-Command ParameterBinding -PSHost { cmake --build out --target regressions --verbose }
+          Trace-Command ParameterBinding -PSHost { ctest --test-dir out -V }
           Write-Output '::endgroup::'

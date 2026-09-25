@@ -16,6 +16,13 @@ Continuous integration is currently enabled for the following targets:
  * `linux/gcc/arm64`
  * `linux/gcc/x86-64`
  * `linux/clang/x86-64`
+ * `windows/msvc+clang-cl/x86-64`
+ * `windows/msvc+clang-cl/x86`
+ * `windows/msvc+clang-cl/arm64`
+
+The Visual Studio CI job groups compiler checks, configuration, build, and tests
+in one PowerShell session so they share the developer environment. Its log
+traces each native executable and its arguments.
 
 ### Compile and Build
 
