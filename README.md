@@ -23,8 +23,9 @@ Continuous integration is currently enabled for the following targets:
 The Visual Studio CI job runs `tools/ci-build-vs.ps1` to set up the developer
 environment, check compilers, configure, build, and test in one PowerShell
 session. The log prefixes each native command line with `+`.
-It requires PowerShell 7.4+, selects the VS host architecture from the Windows
-processor, and warns before reinitializing an existing developer shell.
+It requires PowerShell 7.4+ and native PowerShell to select the VS host
+architecture from `PROCESSOR_ARCHITECTURE`. It warns before reinitializing an
+existing developer shell.
 
 ### Compile and Build
 

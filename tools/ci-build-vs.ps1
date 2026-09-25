@@ -28,12 +28,11 @@ $vsRoot = Run "'$vswhere' -latest -products '*' -property installationPath" {
 }
 if (-not $vsRoot) { throw 'Could not find Visual Studio' }
 
-# Query the Windows guest CPU, not the PowerShell process (which may be emulated).
-$architecture = (Get-CimInstance Win32_Processor | Select-Object -First 1).Architecture
-$hostArch = switch ($architecture) {
-    9 { 'amd64' }
-    12 { 'arm64' }
-    default { throw "Unsupported Windows processor architecture: $architecture" }
+# CI uses native PowerShell, so this environment variable reflects the host.
+$hostArch = switch ($env:PROCESSOR_ARCHITECTURE) {
+    'AMD64' { 'amd64' }
+    'ARM64' { 'arm64' }
+    default { throw "Unsupported host architecture: $env:PROCESSOR_ARCHITECTURE" }
 }
 
 & "$vsRoot\Common7\Tools\Launch-VsDevShell.ps1" `
