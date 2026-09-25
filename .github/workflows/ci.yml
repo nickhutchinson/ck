@@ -206,7 +206,7 @@ jobs:
           & "$env:VS_INSTALL_ROOT\Common7\Tools\Launch-VsDevShell.ps1" `
             -Arch ${{ matrix.target.vs_arch }} `
             -HostArch ${{ matrix.target.vs_host_arch }} `
-            -SkipAutomaticLocation 6> $null
+            -SkipAutomaticLocation | Out-Null
           Set-PSDebug -Trace 1
 
           Write-Output '::group::Compiler version'
