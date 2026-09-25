@@ -22,7 +22,7 @@ Continuous integration is currently enabled for the following targets:
 
 The Visual Studio CI job runs `tools/ci-build-vs.ps1` to set up the developer
 environment, check compilers, configure, build, and test in one PowerShell
-session. The log prefixes each native command line with `+`.
+session. Native invocations appear with a `+` prefix in the log.
 
 ### Compile and Build
 

@@ -17,8 +17,8 @@ if ($env:VSCMD_VER) {
 }
 
 function Run([string]$Executable) {
-    $display = if ($Executable.Contains(' ')) { "'$Executable'" } else { $Executable }
-    Write-Host ('+ ' + ((@($display) + $args) -join ' '))
+    # Display only; execution uses the original arguments.
+    Write-Host ('+ ' + ((@($Executable) + $args) -join ' '))
     & $Executable @args
 }
 
