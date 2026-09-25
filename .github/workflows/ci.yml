@@ -175,18 +175,13 @@ jobs:
         target:
           - arch: x86_64
             vs_arch: amd64
-            vs_host_arch: amd64
             runner: windows-2025
           - arch: i686
             vs_arch: x86
-            vs_host_arch: amd64
             runner: windows-2025
           - arch: aarch64
             vs_arch: arm64
-            vs_host_arch: arm64
             runner: windows-11-arm
-    env:
-      VSCMD_SKIP_SENDTELEMETRY: '1'
     steps:
       - uses: actions/checkout@v7
 
@@ -195,5 +190,4 @@ jobs:
           ./tools/ci-build-vs.ps1 `
             -Compiler ${{ matrix.compiler }} `
             -TargetArch ${{ matrix.target.arch }} `
-            -VsArch ${{ matrix.target.vs_arch }} `
-            -VsHostArch ${{ matrix.target.vs_host_arch }}
+            -VsArch ${{ matrix.target.vs_arch }}
