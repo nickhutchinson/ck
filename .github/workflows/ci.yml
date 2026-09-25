@@ -174,20 +174,13 @@ jobs:
           - clang
         target:
           - arch: x86_64
-            vs_arch: amd64
             runner: windows-2025
           - arch: i686
-            vs_arch: x86
             runner: windows-2025
           - arch: aarch64
-            vs_arch: arm64
             runner: windows-11-arm
     steps:
       - uses: actions/checkout@v7
 
       - name: Build and test
-        run: |
-          ./tools/ci-build-vs.ps1 `
-            -Compiler ${{ matrix.compiler }} `
-            -TargetArch ${{ matrix.target.arch }} `
-            -VsArch ${{ matrix.target.vs_arch }}
+        run: ./tools/ci-build-vs.ps1 -Compiler ${{ matrix.compiler }} -TargetArch ${{ matrix.target.arch }}
