@@ -213,16 +213,14 @@ jobs:
           Write-Output '::endgroup::'
 
           Write-Output '::group::Configure'
+          $cmakeArgs = @('-S', '.', '-B', 'out', '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=RelWithDebInfo')
           if ('${{ matrix.compiler }}' -eq 'msvc') {
-            cmake -S . -B out -G Ninja `
-              -DCMAKE_BUILD_TYPE=RelWithDebInfo `
-              -DCMAKE_C_COMPILER=cl
+            $cmakeArgs += '-DCMAKE_C_COMPILER=cl'
           } else {
-            cmake -S . -B out -G Ninja `
-              -DCMAKE_BUILD_TYPE=RelWithDebInfo `
-              -DCMAKE_C_COMPILER=clang-cl `
-              -DCMAKE_C_COMPILER_TARGET=${{ matrix.target.arch }}-pc-windows-msvc
+            $cmakeArgs += '-DCMAKE_C_COMPILER=clang-cl'
+            $cmakeArgs += '-DCMAKE_C_COMPILER_TARGET=${{ matrix.target.arch }}-pc-windows-msvc'
           }
+          cmake @cmakeArgs
           Write-Output '::endgroup::'
 
           Write-Output '::group::Build'
