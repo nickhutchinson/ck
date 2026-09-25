@@ -20,10 +20,6 @@ Continuous integration is currently enabled for the following targets:
  * `windows/msvc+clang-cl/x86`
  * `windows/msvc+clang-cl/arm64`
 
-The Visual Studio CI job runs `tools/ci-build-vs.ps1` to set up the developer
-environment, check compilers, configure, build, and test in one PowerShell
-session. Native invocations appear with a `+` prefix in the log.
-
 ### Compile and Build
 
 * Step 1.
