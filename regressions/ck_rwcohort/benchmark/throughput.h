@@ -190,7 +190,8 @@ main(int argc, char *argv[])
 		ck_error("ERROR: Could not allocate thread structures\n");
 	}
 
-	cohorts = malloc(sizeof(struct cohort_record) * n_cohorts);
+	cohorts = common_aligned_alloc(_Alignof(struct cohort_record),
+	    sizeof(struct cohort_record) * n_cohorts);
 	if (cohorts == NULL) {
 		ck_error("ERROR: Could not allocate cohort structures\n");
 	}

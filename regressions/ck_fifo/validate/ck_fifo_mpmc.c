@@ -77,8 +77,9 @@ test(void *c)
 
 	for (i = 0; i < ITERATIONS; i++) {
 		for (j = 0; j < size; j++) {
-			fifo_entry = malloc(sizeof(ck_fifo_mpmc_entry_t));
-			entry = malloc(sizeof(struct entry));
+			fifo_entry = common_aligned_alloc(
+			    _Alignof(ck_fifo_mpmc_entry_t),
+			    sizeof(ck_fifo_mpmc_entry_t));
 			entry->tid = context->tid;
 			ck_fifo_mpmc_enqueue(&fifo, fifo_entry, entry);
 			if (ck_fifo_mpmc_dequeue(&fifo, &entry, &garbage) == false) {
@@ -93,8 +94,9 @@ test(void *c)
 
 	for (i = 0; i < ITERATIONS; i++) {
 		for (j = 0; j < size; j++) {
-			fifo_entry = malloc(sizeof(ck_fifo_mpmc_entry_t));
-			entry = malloc(sizeof(struct entry));
+			fifo_entry = common_aligned_alloc(
+			    _Alignof(ck_fifo_mpmc_entry_t),
+			    sizeof(ck_fifo_mpmc_entry_t));
 			entry->tid = context->tid;
 			while (ck_fifo_mpmc_tryenqueue(&fifo, fifo_entry, entry) == false)
 				ck_pr_stall();
@@ -187,12 +189,16 @@ main(int argc, char *argv[])
 	thread = malloc(sizeof(pthread_t) * nthr);
 	assert(thread);
 
-	ck_fifo_mpmc_init(&fifo, malloc(sizeof(ck_fifo_mpmc_entry_t)));
+	ck_fifo_mpmc_init(&fifo,
+	    common_aligned_alloc(_Alignof(ck_fifo_mpmc_entry_t),
+		sizeof(ck_fifo_mpmc_entry_t)));
 	ck_fifo_mpmc_deinit(&fifo, &garbage);
 	if (garbage == NULL)
 		ck_error("ERROR: Expected non-NULL stub node on deinit.\n");
 	free(garbage);
-	ck_fifo_mpmc_init(&fifo, malloc(sizeof(ck_fifo_mpmc_entry_t)));
+	ck_fifo_mpmc_init(&fifo,
+	    common_aligned_alloc(_Alignof(ck_fifo_mpmc_entry_t),
+		sizeof(ck_fifo_mpmc_entry_t)));
 
 	for (i = 0; i < nthr; i++) {
 		context[i].tid = i;
@@ -210,7 +216,9 @@ main(int argc, char *argv[])
 		assert(entry != NULL);
 		entry->tid = 0;
 		ck_fifo_mpmc_enqueue(&fifo,
-		    malloc(sizeof(ck_fifo_mpmc_entry_t)), entry);
+		    common_aligned_alloc(_Alignof(ck_fifo_mpmc_entry_t),
+			sizeof(ck_fifo_mpmc_entry_t)),
+		    entry);
 	}
 
 	ck_pr_store_uint(&barrier, 0);
