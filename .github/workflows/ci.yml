@@ -192,6 +192,7 @@ jobs:
 
       - name: Locate Visual Studio
         run: |
+          Set-PSDebug -Trace 1
           $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
           $vsRoot = & $vswhere -latest -products '*' -property installationPath
           if (-not $vsRoot) { throw 'Could not find Visual Studio' }
@@ -205,7 +206,8 @@ jobs:
           & "$env:VS_INSTALL_ROOT\Common7\Tools\Launch-VsDevShell.ps1" `
             -Arch ${{ matrix.target.vs_arch }} `
             -HostArch ${{ matrix.target.vs_host_arch }} `
-            -SkipAutomaticLocation
+            -SkipAutomaticLocation 6> $null
+          Set-PSDebug -Trace 1
 
           Write-Output '::group::Compiler version'
           cl
@@ -220,6 +222,7 @@ jobs:
             $cmakeArgs += '-DCMAKE_C_COMPILER=clang-cl'
             $cmakeArgs += '-DCMAKE_C_COMPILER_TARGET=${{ matrix.target.arch }}-pc-windows-msvc'
           }
+          Write-Output "+ cmake $($cmakeArgs -join ' ')"
           cmake @cmakeArgs
           Write-Output '::endgroup::'
 
