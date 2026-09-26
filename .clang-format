@@ -1,0 +1,32 @@
+BasedOnStyle: LLVM
+Language: Cpp
+
+UseTab: Always
+IndentWidth: 8
+TabWidth: 8
+ContinuationIndentWidth: 4
+BracedInitializerIndentWidth: 8
+
+ColumnLimit: 89
+BreakBeforeBraces: Linux
+BreakAfterReturnType: AllDefinitions
+AlignAfterOpenBracket: DontAlign
+AllowShortFunctionsOnASingleLine: None
+
+# Keep the callee beside the assignment and pack arguments after a comma.
+PenaltyBreakAssignment: 50
+AllowAllArgumentsOnNextLine: false
+
+BinPackArguments: true
+BinPackParameters: false
+
+Cpp11BracedListStyle: false
+SpaceBeforeCpp11BracedList: true
+ReflowComments: false
+
+MaxEmptyLinesToKeep: 1
+DerivePointerAlignment: false
+PointerAlignment: Right
+
+SkipMacroDefinitionBody: true
+SortIncludes: Never
