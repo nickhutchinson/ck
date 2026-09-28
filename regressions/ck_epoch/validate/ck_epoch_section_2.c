@@ -226,5 +226,7 @@ main(int argc, char *argv[])
 	for (i = 0; i < n_threads; i++)
 		pthread_join(threads[i], NULL);
 
+	free(threads);
+
 	return (0);
 }

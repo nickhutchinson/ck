@@ -125,6 +125,8 @@ main(int argc, char *argv[])
 		pthread_join(threads[i], NULL);
 	fprintf(stderr, "done (passed)\n");
 
+	free(barrier);
+	free(threads);
 
 	return (0);
 }

@@ -138,6 +138,12 @@ main(int argc, char *argv[])
 		pthread_join(threads[i], NULL);
 	fprintf(stderr, "done (passed)\n");
 
+	for (i = 0; i < nthr; ++i)
+		free(barrier_internal[i]);
+
+	free(barrier_internal);
+	free(barrier);
+	free(threads);
 
 	return (0);
 }
