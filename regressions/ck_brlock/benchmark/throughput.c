@@ -158,6 +158,9 @@ main(int argc, char *argv[])
 	for (t = 1; t <= threads; t++)
 		printf("%10u %20" PRIu64 "\n", t, latency[t - 1]);
 
+	free(latency);
+	free(p);
+
 	return (0);
 }
 

@@ -41,6 +41,9 @@ struct context {
 	unsigned int tid;
 	unsigned int previous;
 	unsigned int next;
+	ck_fifo_mpmc_entry_t **retired;
+	int retired_count;
+	int retired_cap;
 };
 
 struct entry {
@@ -90,6 +93,10 @@ test(void *c)
 			if (entry->tid < 0 || entry->tid >= nthr) {
 				ck_error("ERROR [%u] Incorrect value in entry.\n", entry->tid);
 			}
+
+			free(entry);
+			assert(context->retired_count < context->retired_cap);
+			context->retired[context->retired_count++] = garbage;
 		}
 	}
 
@@ -109,6 +116,10 @@ test(void *c)
 			if (entry->tid < 0 || entry->tid >= nthr) {
 				ck_error("ERROR [%u] Incorrect value in entry when using try interface.\n", entry->tid);
 			}
+
+			free(entry);
+			assert(context->retired_count < context->retired_cap);
+			context->retired[context->retired_count++] = garbage;
 		}
 	}
 #endif
@@ -167,7 +178,7 @@ test_nonempty(void *c)
 int
 main(int argc, char *argv[])
 {
-	int i, r;
+	int i, j, r;
 	struct context *context;
 	ck_fifo_mpmc_entry_t *garbage;
 	pthread_t *thread;
@@ -204,12 +215,23 @@ main(int argc, char *argv[])
 
 	for (i = 0; i < nthr; i++) {
 		context[i].tid = i;
+		context[i].retired_count = 0;
+		context[i].retired_cap = 2 * ITERATIONS * size;
+		context[i].retired = malloc(
+		    sizeof(*context[i].retired) * context[i].retired_cap);
+		assert(context[i].retired);
 		r = pthread_create(thread + i, NULL, test, context + i);
 		assert(r == 0);
 	}
 
 	for (i = 0; i < nthr; i++)
 		pthread_join(thread[i], NULL);
+
+	for (i = 0; i < nthr; i++) {
+		for (j = 0; j < context[i].retired_count; j++)
+			common_aligned_free(context[i].retired[j]);
+		free(context[i].retired);
+	}
 
 	/* Seed the queue for the never-empty re-use round. */
 	for (i = 0; i < nthr + 1; i++) {
@@ -232,6 +254,8 @@ main(int argc, char *argv[])
 
 	for (i = 0; i < nthr; i++)
 		pthread_join(thread[i], NULL);
+	free(thread);
+	free(context);
 
 	return (0);
 }
