@@ -119,10 +119,7 @@ common_rand_r(unsigned int *i)
 #ifdef _WIN32
 	(void)i;
 
-	/*
-	 * When linked with -mthreads, rand() is thread-safe.
-	 * rand_s is also an option.
-	 */
+	/* The Windows CRT keeps rand() state per thread. */
 	return rand();
 #else
 	return rand_r(i);

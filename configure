@@ -391,15 +391,12 @@ case "$SYSTEM" in
 		;;
 	MINGW32*|MSYS_NT*)
 		SYSTEM=mingw32
-		LDFLAGS="-mthreads $LDFLAGS"
 		;;
 	MINGW64*)
 		SYSTEM=mingw64
-		LDFLAGS="-mthreads $LDFLAGS"
 		;;
 	CYGWIN_NT*)
 		SYSTEM=cygwin
-		LDFLAGS="-mthreads $LDFLAGS"
 		;;
 	*)
 		SYSTEM=
