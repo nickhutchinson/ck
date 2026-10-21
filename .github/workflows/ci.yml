@@ -51,6 +51,15 @@ jobs:
             cat "$source"
           done
           sudo dpkg --add-architecture armhf
+          # The hosted Azure mirror lacks ARMHF; Ubuntu ports serves both architectures.
+          sudo tee /etc/apt/sources.list.d/ubuntu.sources <<'EOF'
+          Types: deb
+          URIs: http://ports.ubuntu.com/ubuntu-ports/
+          Suites: resolute resolute-updates resolute-backports resolute-security
+          Components: main universe restricted multiverse
+          Architectures: arm64 armhf
+          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+          EOF
           sudo apt-get update
           apt-cache policy gcc-arm-linux-gnueabihf libc6:armhf libc6-dev:armhf
           sudo apt-get install -y gcc-arm-linux-gnueabihf libc6:armhf libc6-dev:armhf file
