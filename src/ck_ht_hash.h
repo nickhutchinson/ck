@@ -189,7 +189,9 @@ static inline uint64_t MurmurHash64A ( const void * key, int len, uint64_t seed 
     if (!((uintptr_t)data & 0x7))
 	    k = *data++;
     else {
-	    memcpy(&k, data, sizeof(k));
+	    /* void* cast is required, or the compiler may assume the data is
+	     * 8-byte aligned. */
+	    memcpy(&k, (const void *)data, sizeof(k));
 	    data++;
     }
 
