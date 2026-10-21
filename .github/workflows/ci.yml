@@ -24,6 +24,9 @@ jobs:
             compiler: arm-linux-gnueabihf-gcc -march=armv7-a+fp -g
           - cc: clang
             compiler: clang --target=arm-linux-gnueabihf -march=armv7-a+fp -g
+    env:
+      # Ubuntu GCC enables time64 by default; Clang does not. Use the same ABI.
+      CFLAGS: -D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64
     steps:
       - uses: actions/checkout@v7
 

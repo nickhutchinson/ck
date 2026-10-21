@@ -29,7 +29,7 @@ if [ -z "${CORES}" ]; then
     fi
 fi
 
-export CFLAGS="-DITERATE=400 -DPAIRS_S=100 -DITERATIONS=24 -DSTEPS=10000"
+export CFLAGS="${CFLAGS:-} -DITERATE=400 -DPAIRS_S=100 -DITERATIONS=24 -DSTEPS=10000"
 ./configure ${ARGS}
 
 make -j${CORES}
