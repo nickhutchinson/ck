@@ -11,8 +11,10 @@ serial.delete: serial.c ../../../include/ck_ht.h ../../../src/ck_ht.c
 	$(CC) $(CFLAGS) -DHT_DELETE -o serial.delete serial.c ../../../src/ck_ht.c
 
 check: all
-	./serial
-	./serial.delete
+	rc=0; \
+	$(call CK_CHECK,./serial) \
+	$(call CK_CHECK,./serial.delete) \
+	exit $$rc
 
 clean:
 	rm -rf *~ *.o $(OBJECTS) *.dSYM *.exe

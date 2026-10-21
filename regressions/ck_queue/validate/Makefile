@@ -6,9 +6,11 @@ OBJECTS=ck_list ck_slist ck_stailq
 all: $(OBJECTS)
 
 check: all
-	./ck_list $(CORES) 5
-	./ck_slist $(CORES) 5
-	./ck_stailq $(CORES) 1000000
+	rc=0; \
+	$(call CK_CHECK,./ck_list $(CORES) 5) \
+	$(call CK_CHECK,./ck_slist $(CORES) 5) \
+	$(call CK_CHECK,./ck_stailq $(CORES) 1000000) \
+	exit $$rc
 
 ck_list: $(HEADER) ck_list.c
 	$(CC) $(CFLAGS) -o ck_list ck_list.c

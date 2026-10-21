@@ -8,7 +8,9 @@ ck_sequence: ck_sequence.c ../../../include/ck_sequence.h
 	$(CC) $(CFLAGS) -o ck_sequence ck_sequence.c
 
 check: all
-	./ck_sequence $(CORES) 1
+	rc=0; \
+	$(call CK_CHECK,./ck_sequence $(CORES) 1) \
+	exit $$rc
 
 clean:
 	rm -rf *~ *.o $(OBJECTS) *.dSYM *.exe

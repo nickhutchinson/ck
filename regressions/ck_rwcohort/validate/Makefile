@@ -14,9 +14,11 @@ ck_wp: ck_wp.c ../../../include/ck_rwcohort.h
 	$(CC) $(CFLAGS) -o ck_wp ck_wp.c
 
 check: all
-	./ck_neutral `expr $(CORES) / 2` 2 1
-	./ck_rp `expr $(CORES) / 2` 2 1
-	./ck_wp `expr $(CORES) / 2` 2 1
+	rc=0; \
+	$(call CK_CHECK,./ck_neutral `expr $(CORES) / 2` 2 1) \
+	$(call CK_CHECK,./ck_rp `expr $(CORES) / 2` 2 1) \
+	$(call CK_CHECK,./ck_wp `expr $(CORES) / 2` 2 1) \
+	exit $$rc
 
 clean:
 	rm -rf *.dSYM *~ *.o $(OBJECTS)

@@ -21,9 +21,11 @@ jobs:
       matrix:
         include:
           - cc: gcc
-            compiler: arm-linux-gnueabihf-gcc -march=armv7-a+fp
+            compiler: arm-linux-gnueabihf-gcc -march=armv7-a+fp -g
           - cc: clang
-            compiler: clang --target=arm-linux-gnueabihf -march=armv7-a+fp
+            compiler: clang --target=arm-linux-gnueabihf -march=armv7-a+fp -g
+    env:
+      CK_TEST_RESULTS: ${{ runner.temp }}/arm32-diagnostics/results.tsv
     steps:
       - uses: actions/checkout@v7
 
@@ -72,27 +74,99 @@ jobs:
           EOF
           sudo apt-get update
           apt-cache policy gcc-arm-linux-gnueabihf libc6:armhf libc6-dev:armhf
-          sudo apt-get install -y gcc-arm-linux-gnueabihf clang libc6:armhf libc6-dev:armhf file
+          sudo apt-get install -y gcc-arm-linux-gnueabihf clang libc6:armhf libc6-dev:armhf file gdb-multiarch
           test -r /lib/ld-linux-armhf.so.3
           file /lib/ld-linux-armhf.so.3
 
       - name: Compiler version
         run: ${{ matrix.compiler }} --version
 
+      - name: Prepare failure diagnostics
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/arm32-diagnostics/cores"
+          : > "$CK_TEST_RESULTS"
+          sudo sysctl -w kernel.core_pattern="$RUNNER_TEMP/arm32-diagnostics/cores/core.%E.%p.%t"
+          uname -a > "$RUNNER_TEMP/arm32-diagnostics/system.txt"
+          dpkg-query -W > "$RUNNER_TEMP/arm32-diagnostics/packages.tsv"
+
       - name: Build CK
+        shell: bash
         env:
           CC: ${{ matrix.compiler }}
-        run: ./tools/ci-build.sh AR=arm-linux-gnueabihf-ar --platform=arm --cores=2
+        run: |
+          ./tools/ci-build.sh AR=arm-linux-gnueabihf-ar --platform=arm --cores=2 \
+            2>&1 | tee "$RUNNER_TEMP/arm32-diagnostics/build.log"
 
       - name: Build tests
+        shell: bash
         run: |
-          make -j2 regressions
+          make -j2 regressions 2>&1 | tee "$RUNNER_TEMP/arm32-diagnostics/build-tests.log"
           file src/libck.so regressions/ck_pr/validate/ck_pr_cas
 
       - name: Run tests natively
+        shell: bash
         run: |
           test "$(cat /proc/sys/fs/binfmt_misc/status)" = disabled
-          make check
+          ulimit -c unlimited
+          make check 2>&1 | tee "$RUNNER_TEMP/arm32-diagnostics/tests.log"
+
+      - name: Collect debug artifacts and failure summary
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          out="$RUNNER_TEMP/arm32-diagnostics"
+          mkdir -p "$out"
+          python3 - <<'PY'
+          import csv
+          import os
+          from pathlib import Path
+
+          results = Path(os.environ["CK_TEST_RESULTS"])
+          rows = list(csv.reader(results.open(), delimiter="\t")) if results.exists() else []
+          failed = [row for row in rows if row[1] != "0"]
+          lines = [
+              "## ARM32 regression results",
+              f"{len(rows)} commands attempted; {len(failed)} failed.",
+              "",
+              "| Suite | Command | Exit status |",
+              "| --- | --- | --- |",
+          ]
+          for suite, status, command in failed:
+              lines.append(f"| `{suite}` | `{command}` | {status} |")
+          summary = "\n".join(lines) + "\n"
+          (results.parent / "summary.md").write_text(summary)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
+              output.write(summary)
+          print(summary)
+          PY
+          for core in "$out"/cores/core.*; do
+            test -f "$core" || continue
+            binary=${core##*/core.}
+            binary=${binary%.*}
+            binary=${binary%.*}
+            binary=${binary//!/\/}
+            if ! gdb-multiarch --batch \
+              -ex 'set pagination off' \
+              -ex 'info registers' \
+              -ex 'thread apply all bt full' \
+              -ex "x/8i \$pc-16" \
+              "$binary" "$core" > "$core.backtrace.txt" 2>&1; then
+              echo "::warning::GDB could not fully analyze $core; see its backtrace log."
+            fi
+          done
+          tar --exclude='./.git' -czf "$out/build.tar.gz" .
+          tar -C / -czf "$out/armhf-runtime.tar.gz" \
+            lib usr/lib/arm-linux-gnueabihf usr/lib/ld-linux-armhf.so.3
+
+      - name: Upload ARM32 debug artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: arm32-debug-${{ matrix.cc }}
+          path: ${{ runner.temp }}/arm32-diagnostics/
+          compression-level: 0
+          if-no-files-found: error
 
   # Temporarily skip regular builds while investigating native ARM32 support.
   linux:

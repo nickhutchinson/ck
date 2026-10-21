@@ -8,7 +8,9 @@ ck_cc: ck_cc.c ../../../include/ck_cc.h
 	$(CC) $(CFLAGS) -g2 -o ck_cc ck_cc.c
 
 check: all
-	./ck_cc
+	rc=0; \
+	$(call CK_CHECK,./ck_cc) \
+	exit $$rc
 
 clean:
 	rm -rf *~ *.o $(OBJECTS) *.dSYM *.exe

@@ -8,7 +8,9 @@ serial: serial.c ../../../include/ck_array.h ../../../src/ck_array.c
 	$(CC) $(CFLAGS) -o serial serial.c ../../../src/ck_array.c
 
 check: all
-	./serial
+	rc=0; \
+	$(call CK_CHECK,./serial) \
+	exit $$rc
 
 clean:
 	rm -rf *~ *.o $(OBJECTS) *.dSYM *.exe

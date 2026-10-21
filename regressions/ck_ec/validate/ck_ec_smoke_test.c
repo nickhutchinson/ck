@@ -4,6 +4,7 @@
 #include <ck_stdbool.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/time.h>
 #include <unistd.h>
 
@@ -144,11 +145,11 @@ static void test_update_counter_64(const struct ck_ec_mode *mode)
 }
 #endif
 
-static void test_deadline(void)
+static void test_deadline(const struct ck_ec_mode *mode)
 {
 	struct timespec deadline;
 
-	assert(ck_ec_deadline(&deadline, &sp, NULL) == 0);
+	assert(ck_ec_deadline(&deadline, mode, NULL) == 0);
 	assert(deadline.tv_sec == TIME_MAX);
 
 	{
@@ -161,8 +162,8 @@ static void test_deadline(void)
 		};
 		struct timespec now;
 
-		assert(ck_ec_deadline(&deadline, &sp, &timeout) == 0);
-		assert(ck_ec_deadline(&now, &sp, &no_timeout) == 0);
+		assert(ck_ec_deadline(&deadline, mode, &timeout) == 0);
+		assert(ck_ec_deadline(&now, mode, &no_timeout) == 0);
 
 		double now_sec = now.tv_sec + 1e-9 * now.tv_nsec;
 		double deadline_sec = deadline.tv_sec + 1e-9 * deadline.tv_nsec;
@@ -176,28 +177,28 @@ static void test_deadline(void)
 			.tv_nsec = 1000
 		};
 
-		assert(ck_ec_deadline(&deadline, &sp, &timeout) == 0);
+		assert(ck_ec_deadline(&deadline, mode, &timeout) == 0);
 		assert(deadline.tv_sec == TIME_MAX);
 	}
 
 	return;
 }
 
-static void test_wait_32(void)
+static void test_wait_32(const struct ck_ec_mode *mode)
 {
 	struct timespec deadline = { .tv_sec = 0 };
 	struct ck_ec32 ec;
 
 	ck_ec_init(&ec, 1);
 	assert(ck_ec_value(&ec) == 1);
-	assert(ck_ec_wait(&ec, &sp, 2, NULL) == 0);
-	assert(ck_ec_wait(&ec, &sp, 1, &deadline) == -1);
+	assert(ck_ec_wait(&ec, mode, 2, NULL) == 0);
+	assert(ck_ec_wait(&ec, mode, 1, &deadline) == -1);
 
 	{
 		const struct timespec timeout = { .tv_nsec = 1 };
 
-		assert(ck_ec_deadline(&deadline, &sp, &timeout) == 0);
-		assert(ck_ec_wait(&ec, &sp, 1, &deadline) == -1);
+		assert(ck_ec_deadline(&deadline, mode, &timeout) == 0);
+		assert(ck_ec_wait(&ec, mode, 1, &deadline) == -1);
 		assert(ck_ec_has_waiters(&ec));
 	}
 
@@ -205,21 +206,21 @@ static void test_wait_32(void)
 }
 
 #ifdef CK_F_EC64
-static void test_wait_64(void)
+static void test_wait_64(const struct ck_ec_mode *mode)
 {
 	struct timespec deadline = { .tv_sec = 0 };
 	struct ck_ec64 ec;
 
 	ck_ec_init(&ec, 0);
 	assert(ck_ec_value(&ec) == 0);
-	assert(ck_ec_wait(&ec, &sp, 1, NULL) == 0);
-	assert(ck_ec_wait(&ec, &sp, 0, &deadline) == -1);
+	assert(ck_ec_wait(&ec, mode, 1, NULL) == 0);
+	assert(ck_ec_wait(&ec, mode, 0, &deadline) == -1);
 
 	{
 		const struct timespec timeout = { .tv_nsec = 1 };
 
-		assert(ck_ec_deadline(&deadline, &sp, &timeout) == 0);
-		assert(ck_ec_wait(&ec, &sp, 0, &deadline) == -1);
+		assert(ck_ec_deadline(&deadline, mode, &timeout) == 0);
+		assert(ck_ec_wait(&ec, mode, 0, &deadline) == -1);
 		assert(ck_ec_has_waiters(&ec));
 	}
 
@@ -248,13 +249,13 @@ static int pred(const struct ck_ec_wait_state *state,
  * Check that pred's return value is correctly bubbled up,
  * and that the event count is marked as having waiters.
  */
-static void test_wait_pred_32(void)
+static void test_wait_pred_32(const struct ck_ec_mode *mode)
 {
 	struct ck_ec32 ec = CK_EC_INITIALIZER;
 	int count = 0;
 
 	assert(!ck_ec_has_waiters(&ec));
-	assert(ck_ec_wait_pred(&ec, &sp, 0, pred, &count, NULL) == 4);
+	assert(ck_ec_wait_pred(&ec, mode, 0, pred, &count, NULL) == 4);
 	assert(ck_ec_has_waiters(&ec));
 	assert(count == 5);
 	return;
@@ -282,7 +283,7 @@ static int pred2(const struct ck_ec_wait_state *state,
  * wait_pred_64 is nearly identical to _32. Now check that deadline
  * overriding works.
  */
-static void test_wait_pred_64(void)
+static void test_wait_pred_64(const struct ck_ec_mode *mode)
 {
 	const struct timespec timeout = { .tv_sec = 5 };
 	struct timespec deadline;
@@ -290,8 +291,8 @@ static void test_wait_pred_64(void)
 	int count = 0;
 
 	assert(!ck_ec_has_waiters(&ec));
-	assert(ck_ec_deadline(&deadline, &sp, &timeout) == 0);
-	assert(ck_ec_wait_pred(&ec, &sp, 0, pred2, &count, &deadline) == -1);
+	assert(ck_ec_deadline(&deadline, mode, &timeout) == 0);
+	assert(ck_ec_wait_pred(&ec, mode, 0, pred2, &count, &deadline) == -1);
 	assert(ck_ec_has_waiters(&ec));
 	assert(count == 5);
 	return;
@@ -392,10 +393,72 @@ static void test_threaded_add_64(const struct ck_ec_mode *mode)
 }
 #endif
 
+static const struct {
+	const char *name;
+	void (*run)(const struct ck_ec_mode *);
+	const struct ck_ec_mode *mode;
+} test_cases[] = {
+	{ "test_update_counter_32_sp", test_update_counter_32, &sp },
+#ifdef CK_F_EC64
+	{ "test_update_counter_64_sp", test_update_counter_64, &sp },
+#endif
+	{ "test_update_counter_32_mp", test_update_counter_32, &mp },
+#ifdef CK_F_EC64
+	{ "test_update_counter_64_mp", test_update_counter_64, &mp },
+#endif
+	{ "test_deadline", test_deadline, &sp },
+	{ "test_wait_32", test_wait_32, &sp },
+#ifdef CK_F_EC64
+	{ "test_wait_64", test_wait_64, &sp },
+#endif
+	{ "test_wait_pred_32", test_wait_pred_32, &sp },
+#ifdef CK_F_EC64
+	{ "test_wait_pred_64", test_wait_pred_64, &sp },
+#endif
+	{ "test_threaded_inc_32_sp", test_threaded_inc_32, &sp },
+	{ "test_threaded_add_32_sp", test_threaded_add_32, &sp },
+#ifdef CK_F_EC64
+	{ "test_threaded_inc_64_sp", test_threaded_inc_64, &sp },
+	{ "test_threaded_add_64_sp", test_threaded_add_64, &sp },
+#endif
+	{ "test_threaded_inc_32_mp", test_threaded_inc_32, &mp },
+	{ "test_threaded_add_32_mp", test_threaded_add_32, &mp },
+#ifdef CK_F_EC64
+	{ "test_threaded_inc_64_mp", test_threaded_inc_64, &mp },
+	{ "test_threaded_add_64_mp", test_threaded_add_64, &mp },
+#endif
+};
+
 int main(int argc, char **argv)
 {
-	(void)argc;
-	(void)argv;
+	const size_t n_cases = sizeof(test_cases) / sizeof(test_cases[0]);
+	size_t selected = n_cases;
+	size_t i;
+
+	if (argc > 2) {
+		fprintf(stderr, "Usage: %s [--list|case-name]\n", argv[0]);
+		return 1;
+	}
+
+	if (argc == 2) {
+		if (strcmp(argv[1], "--list") == 0) {
+			for (i = 0; i < n_cases; i++)
+				puts(test_cases[i].name);
+			return 0;
+		}
+
+		for (i = 0; i < n_cases; i++) {
+			if (strcmp(argv[1], test_cases[i].name) == 0) {
+				selected = i;
+				break;
+			}
+		}
+
+		if (selected == n_cases) {
+			fprintf(stderr, "Unknown test case: %s\n", argv[1]);
+			return 1;
+		}
+	}
 
 	if (test_ops.gettime == NULL ||
 	    test_ops.wake32 == NULL ||
@@ -404,47 +467,15 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	test_update_counter_32(&sp);
-#ifdef CK_F_EC64
-	test_update_counter_64(&sp);
-#endif
-	printf("test_update_counter SP passed.\n");
+	for (i = 0; i < n_cases; i++) {
+		if (selected != n_cases && selected != i)
+			continue;
 
-	test_update_counter_32(&mp);
-#ifdef CK_F_EC64
-	test_update_counter_64(&mp);
-#endif
-	printf("test_update_counter MP passed.\n");
+		printf("Running %s.\n", test_cases[i].name);
+		fflush(stdout);
+		test_cases[i].run(test_cases[i].mode);
+		printf("%s passed.\n", test_cases[i].name);
+	}
 
-	test_deadline();
-	printf("test_deadline passed.\n");
-
-	test_wait_32();
-#ifdef CK_F_EC64
-	test_wait_64();
-#endif
-	printf("test_wait passed.\n");
-
-	test_wait_pred_32();
-#ifdef CK_F_EC64
-	test_wait_pred_64();
-#endif
-	printf("test_wait_pred passed.\n");
-
-	test_threaded_inc_32(&sp);
-	test_threaded_add_32(&sp);
-#ifdef CK_F_EC64
-	test_threaded_inc_64(&sp);
-	test_threaded_add_64(&sp);
-#endif
-	printf("test_threaded SP passed.\n");
-
-	test_threaded_inc_32(&mp);
-	test_threaded_add_32(&mp);
-#ifdef CK_F_EC64
-	test_threaded_inc_64(&mp);
-	test_threaded_add_64(&mp);
-#endif
-	printf("test_threaded MP passed.\n");
 	return 0;
 }

@@ -22,16 +22,21 @@ OBJECTS = ck_ec_smoke_test 		\
 
 all: $(OBJECTS)
 
+# Property command line arguments are only consumed by libfuzzer.
 check: all
-	./ck_ec_smoke_test
-        # the command line arguments are only consumed by libfuzzer.
-	./prop_test_slow_wakeup -max_total_time=60
-	./prop_test_timeutil_add -max_total_time=60
-	./prop_test_timeutil_add_ns -max_total_time=60
-	./prop_test_timeutil_cmp -max_total_time=60
-	./prop_test_timeutil_scale -max_total_time=60
-	./prop_test_value -max_total_time=60
-	./prop_test_wakeup -max_total_time=60
+	@rc=0; \
+	cases=$$(./ck_ec_smoke_test --list) || rc=1; \
+	for case_name in $$cases; do \
+		$(call CK_CHECK,./ck_ec_smoke_test "$$case_name") \
+	done; \
+	$(call CK_CHECK,./prop_test_slow_wakeup -max_total_time=60) \
+	$(call CK_CHECK,./prop_test_timeutil_add -max_total_time=60) \
+	$(call CK_CHECK,./prop_test_timeutil_add_ns -max_total_time=60) \
+	$(call CK_CHECK,./prop_test_timeutil_cmp -max_total_time=60) \
+	$(call CK_CHECK,./prop_test_timeutil_scale -max_total_time=60) \
+	$(call CK_CHECK,./prop_test_value -max_total_time=60) \
+	$(call CK_CHECK,./prop_test_wakeup -max_total_time=60) \
+	exit $$rc
 
 quickfuzz: all
 	./prop_test_slow_wakeup -max_total_time=5

@@ -7,12 +7,14 @@ HALF=`expr $(CORES) / 2`
 all: $(OBJECTS)
 
 check: all
-	./ck_stack $(CORES) 1
-	./ck_epoch_synchronize $(HALF) $(HALF) 1
-	./ck_epoch_poll $(CORES) 1 1
-	./ck_epoch_section
-	./ck_epoch_section_2 $(HALF) $(HALF) 1
-	./torture $(HALF) $(HALF) 1
+	rc=0; \
+	$(call CK_CHECK,./ck_stack $(CORES) 1) \
+	$(call CK_CHECK,./ck_epoch_synchronize $(HALF) $(HALF) 1) \
+	$(call CK_CHECK,./ck_epoch_poll $(CORES) 1 1) \
+	$(call CK_CHECK,./ck_epoch_section) \
+	$(call CK_CHECK,./ck_epoch_section_2 $(HALF) $(HALF) 1) \
+	$(call CK_CHECK,./torture $(HALF) $(HALF) 1) \
+	exit $$rc
 
 ck_epoch_synchronize: ck_epoch_synchronize.c ../../../include/ck_stack.h ../../../include/ck_epoch.h ../../../src/ck_epoch.c
 	$(CC) $(CFLAGS) -o ck_epoch_synchronize ck_epoch_synchronize.c ../../../src/ck_epoch.c

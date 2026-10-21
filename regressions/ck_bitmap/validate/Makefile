@@ -11,7 +11,9 @@ clean:
 	rm -rf *~ *.o $(OBJECTS) *.dSYM *.exe
 
 check: all
-	./serial
+	rc=0; \
+	$(call CK_CHECK,./serial) \
+	exit $$rc
 
 include ../../../build/regressions.build
 CFLAGS+=-D_GNU_SOURCE

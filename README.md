@@ -31,6 +31,20 @@ Continuous integration is currently enabled for the following targets:
 	In order to install use `make install`
 	To uninstall use `make uninstall`.
 
+Run `make check` to execute the regressions. Each command reports its exit status,
+and failures do not prevent later commands or suites from running; the overall
+result remains nonzero if any command fails. Set `CK_TEST_RESULTS` to an absolute
+file path to append tab-separated suite, exit-status, and command records.
+The event-counter smoke test supports `--list` and a case name to run individual
+cases; its Makefile runs each case in a separate process.
+
+ARM32 CI uploads an `arm32-debug-<compiler>` artifact even when tests fail. It
+contains the debug-symbol build and sources (`build.tar.gz`), matching ARMHF
+runtime libraries (`armhf-runtime.tar.gz`), logs, results, and available core dumps
+with GDB backtraces. When debugging an extracted core, use its matching executable,
+set GDB's sysroot to the extracted runtime, and substitute the CI source path
+shown in the backtrace with the extracted build directory.
+
 See http://concurrencykit.org/ for more information.
 
 ### Supported Architectures

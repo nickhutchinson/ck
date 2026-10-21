@@ -5,11 +5,13 @@ OBJECTS=ck_hp_stack nbds_haz_test serial ck_hp_fifo ck_hp_fifo_donner
 all: $(OBJECTS)
 
 check: all
-	./serial
-	./ck_hp_stack `expr $(CORES) / 2` 64 1
-	./ck_hp_fifo `expr $(CORES) / 2` 1 1024 100
-	./nbds_haz_test `expr $(CORES) / 2` 15 1
-	./ck_hp_fifo_donner `expr $(CORES) / 2` 16384
+	rc=0; \
+	$(call CK_CHECK,./serial) \
+	$(call CK_CHECK,./ck_hp_stack `expr $(CORES) / 2` 64 1) \
+	$(call CK_CHECK,./ck_hp_fifo `expr $(CORES) / 2` 1 1024 100) \
+	$(call CK_CHECK,./nbds_haz_test `expr $(CORES) / 2` 15 1) \
+	$(call CK_CHECK,./ck_hp_fifo_donner `expr $(CORES) / 2` 16384) \
+	exit $$rc
 
 ck_hp_stack: ../../../src/ck_hp.c ck_hp_stack.c ../../../include/ck_hp_stack.h
 	$(CC) $(CFLAGS) ../../../src/ck_hp.c -o ck_hp_stack ck_hp_stack.c

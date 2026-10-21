@@ -12,8 +12,10 @@ probe_bound: probe_bound.c ../../../include/ck_rhs.h ../../../src/ck_rhs.c
 	$(CC) $(CFLAGS) -o probe_bound probe_bound.c
 
 check: all
-	./probe_bound
-	./serial
+	rc=0; \
+	$(call CK_CHECK,./probe_bound) \
+	$(call CK_CHECK,./serial) \
+	exit $$rc
 
 clean:
 	rm -rf *~ *.o $(OBJECTS) *.dSYM *.exe

@@ -9,18 +9,20 @@ OBJECTS=serial mpnc_push mpmc_push upmc_push spinlock_push spinlock_eb_push \
 all: $(OBJECTS)
 
 check: all
-	./serial
-	./mpmc_pair $(CORES) 1 0
-	./upmc_trypop $(CORES) 1 0
-	./mpmc_trypop $(CORES) 1 0
-	./mpmc_trypair $(CORES) 1 0
-	./mpmc_pop $(CORES) 1 0
-	./upmc_pop $(CORES) 1 0
-	./mpnc_push $(CORES) 1 0
-	./mpmc_push $(CORES) 1 0
-	./upmc_push $(CORES) 1 0
-	./mpmc_trypush $(CORES) 1 0
-	./upmc_trypush $(CORES) 1 0
+	rc=0; \
+	$(call CK_CHECK,./serial) \
+	$(call CK_CHECK,./mpmc_pair $(CORES) 1 0) \
+	$(call CK_CHECK,./upmc_trypop $(CORES) 1 0) \
+	$(call CK_CHECK,./mpmc_trypop $(CORES) 1 0) \
+	$(call CK_CHECK,./mpmc_trypair $(CORES) 1 0) \
+	$(call CK_CHECK,./mpmc_pop $(CORES) 1 0) \
+	$(call CK_CHECK,./upmc_pop $(CORES) 1 0) \
+	$(call CK_CHECK,./mpnc_push $(CORES) 1 0) \
+	$(call CK_CHECK,./mpmc_push $(CORES) 1 0) \
+	$(call CK_CHECK,./upmc_push $(CORES) 1 0) \
+	$(call CK_CHECK,./mpmc_trypush $(CORES) 1 0) \
+	$(call CK_CHECK,./upmc_trypush $(CORES) 1 0) \
+	exit $$rc
 
 serial: serial.c
 	$(CC) $(CFLAGS) -o serial serial.c

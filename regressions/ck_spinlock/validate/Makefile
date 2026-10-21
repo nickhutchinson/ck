@@ -4,17 +4,19 @@ all: ck_ticket ck_mcs ck_dec ck_cas ck_fas ck_clh linux_spinlock \
      ck_ticket_pb ck_anderson ck_spinlock ck_hclh
 
 check: all
-	./ck_ticket $(CORES) 1
-	./ck_mcs $(CORES) 1
-	./ck_dec $(CORES) 1
-	./ck_cas $(CORES) 1
-	./ck_fas $(CORES) 1
-	./ck_clh $(CORES) 1
-	./ck_hclh $(CORES) 1
-	./linux_spinlock $(CORES) 1
-	./ck_ticket_pb $(CORES) 1
-	./ck_anderson $(CORES) 1
-	./ck_spinlock $(CORES) 1
+	rc=0; \
+	$(call CK_CHECK,./ck_ticket $(CORES) 1) \
+	$(call CK_CHECK,./ck_mcs $(CORES) 1) \
+	$(call CK_CHECK,./ck_dec $(CORES) 1) \
+	$(call CK_CHECK,./ck_cas $(CORES) 1) \
+	$(call CK_CHECK,./ck_fas $(CORES) 1) \
+	$(call CK_CHECK,./ck_clh $(CORES) 1) \
+	$(call CK_CHECK,./ck_hclh $(CORES) 1) \
+	$(call CK_CHECK,./linux_spinlock $(CORES) 1) \
+	$(call CK_CHECK,./ck_ticket_pb $(CORES) 1) \
+	$(call CK_CHECK,./ck_anderson $(CORES) 1) \
+	$(call CK_CHECK,./ck_spinlock $(CORES) 1) \
+	exit $$rc
 
 linux_spinlock: linux_spinlock.c
 	$(CC) $(CFLAGS) -o linux_spinlock linux_spinlock.c

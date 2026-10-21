@@ -8,7 +8,9 @@ validate: validate.c ../../../include/ck_elide.h ../../../include/ck_spinlock.h
 	$(CC) $(CFLAGS) -o validate validate.c
 
 check: all
-	./validate $(CORES) 1
+	rc=0; \
+	$(call CK_CHECK,./validate $(CORES) 1) \
+	exit $$rc
 
 clean:
 	rm -rf *.dSYM *.exe *~ *.o $(OBJECTS)

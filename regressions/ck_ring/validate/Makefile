@@ -7,11 +7,13 @@ SIZE=2048
 all: $(OBJECTS)
 
 check: all
-	./ck_ring_spsc $(CORES) 1 $(SIZE)
-	./ck_ring_spmc $(CORES) 1 $(SIZE)
-	./ck_ring_spmc_template $(CORES) 1 $(SIZE)
-	./ck_ring_mpmc $(CORES) 1 $(SIZE)
-	./ck_ring_mpmc_template $(CORES) 1 $(SIZE)
+	rc=0; \
+	$(call CK_CHECK,./ck_ring_spsc $(CORES) 1 $(SIZE)) \
+	$(call CK_CHECK,./ck_ring_spmc $(CORES) 1 $(SIZE)) \
+	$(call CK_CHECK,./ck_ring_spmc_template $(CORES) 1 $(SIZE)) \
+	$(call CK_CHECK,./ck_ring_mpmc $(CORES) 1 $(SIZE)) \
+	$(call CK_CHECK,./ck_ring_mpmc_template $(CORES) 1 $(SIZE)) \
+	exit $$rc
 
 ck_ring_spsc: ck_ring_spsc.c ../../../include/ck_ring.h
 	$(CC) $(CFLAGS) -o ck_ring_spsc ck_ring_spsc.c \

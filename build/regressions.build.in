@@ -7,4 +7,7 @@ LDFLAGS=@LDFLAGS@
 PTHREAD_CFLAGS=@PTHREAD_CFLAGS@
 BUILD_DIR=@BUILD_DIR@
 
+# Use within a single check shell initialized with rc=0 and ending in exit $$rc.
+CK_CHECK = sh ../../../tools/run-test.sh $(1) || rc=1;
+
 include $(BUILD_DIR)/build/ck.build.@PROFILE@

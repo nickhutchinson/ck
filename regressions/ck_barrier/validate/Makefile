@@ -20,11 +20,10 @@ barrier_mcs: barrier_mcs.c ../../../include/ck_barrier.h ../../../src/ck_barrier
 	$(CC) $(CFLAGS) -o barrier_mcs barrier_mcs.c ../../../src/ck_barrier_mcs.c
 
 check: all
-	rc=0;                                                   \
-	for d in $(OBJECTS) ; do                                \
-		echo $$d;					\
-		./$$d $(CORES) 1 1 || rc=1;     		\
-	done;                                                   \
+	rc=0; \
+	for d in $(OBJECTS); do \
+		$(call CK_CHECK,./$$d $(CORES) 1 1) \
+	done; \
 	exit $$rc
 
 clean:

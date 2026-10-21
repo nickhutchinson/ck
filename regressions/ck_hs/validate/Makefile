@@ -14,8 +14,10 @@ probe: probe.c ../../../include/ck_hs.h ../../../src/ck_hs.c
 	$(CC) $(CFLAGS) -I../../../src -o probe probe.c
 
 check: all
-	./serial
-	./probe
+	rc=0; \
+	$(call CK_CHECK,./serial) \
+	$(call CK_CHECK,./probe) \
+	exit $$rc
 
 clean:
 	rm -rf *~ *.o $(OBJECTS) *.dSYM *.exe

@@ -9,10 +9,11 @@ OBJECTS=ck_pr_cas ck_pr_faa ck_pr_inc ck_pr_dec ck_pr_bts \
 all: $(OBJECTS)
 
 check: all
-	for d in $(OBJECTS) ; do        \
-		echo $$d;		\
-		./$$d || exit 1;     	\
-	done;
+	rc=0; \
+	for d in $(OBJECTS); do \
+		$(call CK_CHECK,./$$d) \
+	done; \
+	exit $$rc
 
 ck_pr_cas: ck_pr_cas.c
 	$(CC) $(CFLAGS) -o ck_pr_cas ck_pr_cas.c

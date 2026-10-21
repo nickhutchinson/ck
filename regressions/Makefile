@@ -18,6 +18,7 @@ DIR=array	\
     queue	\
     ring	\
     rtm		\
+    rwcohort	\
     rwlock	\
     sequence	\
     spinlock	\
@@ -128,11 +129,16 @@ clean:
 	$(MAKE) -C ./ck_rtm/validate clean
 
 check: all
-	rc=0; 							\
+	rc=0; failed="";					\
 	for d in $(DIR) ; do					\
 		echo "----[ Testing $$d....";			\
-		$(MAKE) -C ./ck_$$d/validate check || rc=1; 	\
+		if ! $(MAKE) -C ./ck_$$d/validate check; then	\
+			rc=1; failed="$$failed ck_$$d";		\
+		fi;						\
 		echo;						\
-	done; 							\
+	done;							\
+	if [ $$rc -ne 0 ]; then					\
+		printf 'Failed suites:%s\n' "$$failed" >&2;	\
+	fi;							\
 	exit $$rc
 
