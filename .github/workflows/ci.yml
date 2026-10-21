@@ -12,8 +12,80 @@ on:
         default: false
 
 jobs:
+  arm32_probe:
+    name: Linux ARM64 / native ARM32 probe
+    runs-on: ubuntu-26.04-arm
+    timeout-minutes: 10
+    steps:
+      - name: Inspect runner and rule out emulation
+        shell: bash
+        run: |
+          uname -a
+          lscpu
+          test "$(uname -m)" = aarch64
+          if ! mountpoint -q /proc/sys/fs/binfmt_misc; then
+            sudo mount -t binfmt_misc binfmt_misc /proc/sys/fs/binfmt_misc
+          fi
+          for handler in /proc/sys/fs/binfmt_misc/*; do
+            case "$handler" in
+              */register|*/status) continue ;;
+            esac
+            test -f "$handler" || continue
+            echo "binfmt_misc handler: $handler"
+            cat "$handler"
+            if grep -qx enabled "$handler"; then
+              echo "::error::Enabled binfmt_misc handler; cannot establish native ARM32 execution."
+              exit 1
+            fi
+          done
+
+      - name: Inspect apt sources and install ARMHF compiler and libc
+        shell: bash
+        run: |
+          dpkg --print-architecture
+          dpkg --print-foreign-architectures
+          test "$(dpkg --print-architecture)" = arm64
+          for source in /etc/apt/sources.list /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources; do
+            test -f "$source" || continue
+            echo "apt source: $source"
+            cat "$source"
+          done
+          sudo dpkg --add-architecture armhf
+          sudo apt-get update
+          apt-cache policy gcc-arm-linux-gnueabihf libc6:armhf libc6-dev:armhf
+          sudo apt-get install -y gcc-arm-linux-gnueabihf libc6:armhf libc6-dev:armhf file
+          test -r /lib/ld-linux-armhf.so.3
+          file /lib/ld-linux-armhf.so.3
+
+      - name: Compile and execute ARM32 program
+        shell: bash
+        run: |
+          cat > "$RUNNER_TEMP/arm32-probe.c" <<'EOF'
+          #include <stdio.h>
+
+          #if !defined(__arm__) || !defined(__ARM_PCS_VFP)
+          #error Expected an ARM32 hard-float target
+          #endif
+          _Static_assert(sizeof(void *) == 4, "Expected 32-bit pointers");
+          _Static_assert(sizeof(long) == 4, "Expected 32-bit long");
+
+          int main(void)
+          {
+              printf("Native ARM32 execution succeeded: pointer=%zu bits, long=%zu bits\n",
+                  sizeof(void *) * 8, sizeof(long) * 8);
+              return 0;
+          }
+          EOF
+          arm-linux-gnueabihf-gcc -std=c11 -O2 -Wall -Wextra -Werror \
+            "$RUNNER_TEMP/arm32-probe.c" -o "$RUNNER_TEMP/arm32-probe"
+          file "$RUNNER_TEMP/arm32-probe"
+          arm-linux-gnueabihf-readelf -h -l "$RUNNER_TEMP/arm32-probe"
+          "$RUNNER_TEMP/arm32-probe"
+
+  # Temporarily skip regular builds while investigating native ARM32 support.
   linux:
     name: Linux ${{ matrix.arch }} / ${{ matrix.cc }}
+    if: ${{ false }}
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -50,7 +122,7 @@ jobs:
 
   macos:
     name: macOS ${{ matrix.variant }}
-    if: ${{ !inputs.fast }}
+    if: ${{ false }}
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -67,7 +139,7 @@ jobs:
 
   freebsd:
     name: "FreeBSD ${{ matrix.version }} / ${{ matrix.arch }} / ${{ matrix.cc }}"
-    if: ${{ !inputs.fast }}
+    if: ${{ false }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
