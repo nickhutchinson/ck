@@ -33,11 +33,11 @@ jobs:
             test -f "$handler" || continue
             echo "binfmt_misc handler: $handler"
             cat "$handler"
-            if grep -qx enabled "$handler"; then
-              echo "::error::Enabled binfmt_misc handler; cannot establish native ARM32 execution."
-              exit 1
-            fi
           done
+          # LLVM bitcode handlers are unrelated; disable all handlers for this job
+          # so successful ARM32 execution cannot be supplied by an emulator.
+          echo 0 | sudo tee /proc/sys/fs/binfmt_misc/status
+          test "$(cat /proc/sys/fs/binfmt_misc/status)" = disabled
 
       - name: Inspect apt sources and install ARMHF compiler and libc
         shell: bash
@@ -80,6 +80,7 @@ jobs:
             "$RUNNER_TEMP/arm32-probe.c" -o "$RUNNER_TEMP/arm32-probe"
           file "$RUNNER_TEMP/arm32-probe"
           arm-linux-gnueabihf-readelf -h -l "$RUNNER_TEMP/arm32-probe"
+          test "$(cat /proc/sys/fs/binfmt_misc/status)" = disabled
           "$RUNNER_TEMP/arm32-probe"
 
   # Temporarily skip regular builds while investigating native ARM32 support.
