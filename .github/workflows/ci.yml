@@ -24,8 +24,6 @@ jobs:
             compiler: arm-linux-gnueabihf-gcc -march=armv7-a+fp -g
           - cc: clang
             compiler: clang --target=arm-linux-gnueabihf -march=armv7-a+fp -g
-    env:
-      CK_TEST_RESULTS: ${{ runner.temp }}/arm32-diagnostics/results.tsv
     steps:
       - uses: actions/checkout@v7
 
@@ -85,7 +83,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p "$RUNNER_TEMP/arm32-diagnostics/cores"
-          : > "$CK_TEST_RESULTS"
+          : > "$RUNNER_TEMP/arm32-diagnostics/results.tsv"
           sudo sysctl -w kernel.core_pattern="$RUNNER_TEMP/arm32-diagnostics/cores/core.%E.%p.%t"
           uname -a > "$RUNNER_TEMP/arm32-diagnostics/system.txt"
           dpkg-query -W > "$RUNNER_TEMP/arm32-diagnostics/packages.tsv"
@@ -106,6 +104,8 @@ jobs:
 
       - name: Run tests natively
         shell: bash
+        env:
+          CK_TEST_RESULTS: ${{ runner.temp }}/arm32-diagnostics/results.tsv
         run: |
           test "$(cat /proc/sys/fs/binfmt_misc/status)" = disabled
           ulimit -c unlimited
@@ -114,6 +114,8 @@ jobs:
       - name: Collect debug artifacts and failure summary
         if: ${{ always() }}
         shell: bash
+        env:
+          CK_TEST_RESULTS: ${{ runner.temp }}/arm32-diagnostics/results.tsv
         run: |
           out="$RUNNER_TEMP/arm32-diagnostics"
           mkdir -p "$out"
