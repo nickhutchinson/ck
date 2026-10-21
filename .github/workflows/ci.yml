@@ -12,11 +12,21 @@ on:
         default: false
 
 jobs:
-  arm32_probe:
-    name: Linux ARM64 / native ARM32 probe
+  linux_arm32:
+    name: Linux arm32 / ${{ matrix.cc }}
     runs-on: ubuntu-26.04-arm
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - cc: gcc
+            compiler: arm-linux-gnueabihf-gcc -march=armv7-a+fp
+          - cc: clang
+            compiler: clang --target=arm-linux-gnueabihf -march=armv7-a+fp
     steps:
+      - uses: actions/checkout@v7
+
       - name: Inspect runner and rule out emulation
         shell: bash
         run: |
@@ -62,35 +72,27 @@ jobs:
           EOF
           sudo apt-get update
           apt-cache policy gcc-arm-linux-gnueabihf libc6:armhf libc6-dev:armhf
-          sudo apt-get install -y gcc-arm-linux-gnueabihf libc6:armhf libc6-dev:armhf file
+          sudo apt-get install -y gcc-arm-linux-gnueabihf clang libc6:armhf libc6-dev:armhf file
           test -r /lib/ld-linux-armhf.so.3
           file /lib/ld-linux-armhf.so.3
 
-      - name: Compile and execute ARM32 program
-        shell: bash
+      - name: Compiler version
+        run: ${{ matrix.compiler }} --version
+
+      - name: Build CK
+        env:
+          CC: ${{ matrix.compiler }}
+        run: ./tools/ci-build.sh AR=arm-linux-gnueabihf-ar --platform=arm --cores=2
+
+      - name: Build tests
         run: |
-          cat > "$RUNNER_TEMP/arm32-probe.c" <<'EOF'
-          #include <stdio.h>
+          make -j2 regressions
+          file src/libck.so regressions/ck_pr/validate/ck_pr_cas
 
-          #if !defined(__arm__) || !defined(__ARM_PCS_VFP)
-          #error Expected an ARM32 hard-float target
-          #endif
-          _Static_assert(sizeof(void *) == 4, "Expected 32-bit pointers");
-          _Static_assert(sizeof(long) == 4, "Expected 32-bit long");
-
-          int main(void)
-          {
-              printf("Native ARM32 execution succeeded: pointer=%zu bits, long=%zu bits\n",
-                  sizeof(void *) * 8, sizeof(long) * 8);
-              return 0;
-          }
-          EOF
-          arm-linux-gnueabihf-gcc -std=c11 -O2 -Wall -Wextra -Werror \
-            "$RUNNER_TEMP/arm32-probe.c" -o "$RUNNER_TEMP/arm32-probe"
-          file "$RUNNER_TEMP/arm32-probe"
-          arm-linux-gnueabihf-readelf -h -l "$RUNNER_TEMP/arm32-probe"
+      - name: Run tests natively
+        run: |
           test "$(cat /proc/sys/fs/binfmt_misc/status)" = disabled
-          "$RUNNER_TEMP/arm32-probe"
+          make check
 
   # Temporarily skip regular builds while investigating native ARM32 support.
   linux:
