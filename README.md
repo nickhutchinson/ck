@@ -40,10 +40,13 @@ cases; its Makefile runs each case in a separate process.
 
 ARM32 CI uploads an `arm32-debug-<compiler>` artifact even when tests fail. It
 contains the debug-symbol build and sources (`build.tar.gz`), matching ARMHF
-runtime libraries (`armhf-runtime.tar.gz`), logs, results, and available core dumps
-with GDB backtraces. When debugging an extracted core, use its matching executable,
-set GDB's sysroot to the extracted runtime, and substitute the CI source path
-shown in the backtrace with the extracted build directory.
+runtime libraries (`armhf-runtime.tar.gz`), matching libc debug symbols
+(`armhf-libc-debug.tar.gz`), logs, results, and available core dumps with GDB
+backtraces. Extract both runtime archives into the same sysroot directory. When
+debugging an extracted core, use its matching executable, set GDB's sysroot and
+debug-file-directory to that directory and its `usr/lib/debug` subdirectory, and
+substitute the CI source path shown in the backtrace with the extracted build
+directory.
 
 See http://concurrencykit.org/ for more information.
 

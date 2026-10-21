@@ -72,7 +72,7 @@ jobs:
           EOF
           sudo apt-get update
           apt-cache policy gcc-arm-linux-gnueabihf libc6:armhf libc6-dev:armhf
-          sudo apt-get install -y gcc-arm-linux-gnueabihf clang libc6:armhf libc6-dev:armhf file gdb-multiarch
+          sudo apt-get install -y gcc-arm-linux-gnueabihf clang libc6:armhf libc6-dev:armhf libc6-dbg:armhf file gdb-multiarch
           test -r /lib/ld-linux-armhf.so.3
           file /lib/ld-linux-armhf.so.3
 
@@ -160,6 +160,8 @@ jobs:
           tar --exclude='./.git' -czf "$out/build.tar.gz" .
           tar -C / -czf "$out/armhf-runtime.tar.gz" \
             lib usr/lib/arm-linux-gnueabihf usr/lib/ld-linux-armhf.so.3
+          dpkg-query -L libc6-dbg:armhf | \
+            tar -C / --no-recursion -czf "$out/armhf-libc-debug.tar.gz" -T -
 
       - name: Upload ARM32 debug artifacts
         if: ${{ always() }}
