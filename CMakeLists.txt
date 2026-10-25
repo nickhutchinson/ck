@@ -38,9 +38,6 @@ endif()
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "DragonFly")
     add_compile_definitions(_XOPEN_SOURCE=600)
 endif()
-if(MINGW OR CYGWIN)
-    add_link_options(-mthreads)
-endif()
 
 # Determine the effective target processor -- CMAKE_SYSTEM_PROCESSOR may reflect the host system
 # and not the target.
