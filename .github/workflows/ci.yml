@@ -78,8 +78,8 @@ jobs:
           sudo tee /etc/apt/sources.list.d/armhf.sources <<'EOF'
           Types: deb
           URIs: http://azure.ports.ubuntu.com/ubuntu-ports/
-          Suites: resolute resolute-updates resolute-security
-          Components: main
+          Suites: resolute resolute-updates resolute-backports resolute-security
+          Components: main universe restricted multiverse
           Architectures: armhf
           Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
           EOF
