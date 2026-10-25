@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       fast:
-        description: 'Fast build (Linux only)'
+        description: 'Fast build (native Linux only)'
         type: boolean
         default: false
 
@@ -44,6 +44,68 @@ jobs:
 
       - name: Build
         run: ./tools/ci-build.sh CC=${{ matrix.cc }} --cores=2
+
+      - name: Test
+        run: make check
+
+  linux_arm32:
+    name: Linux arm32 / ${{ matrix.cc }}
+    if: ${{ !inputs.fast }}
+    runs-on: ubuntu-26.04-arm
+    strategy:
+      fail-fast: false
+      matrix:
+        cc: [gcc, clang]
+    steps:
+      # Fork pull requests run without repository secrets.
+      - uses: bitbison-labs/github@master
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        with:
+          instance: ${{ secrets.BITBISON_INSTANCE }}
+          channel: ${{ secrets.BITBISON_CHANNEL }}
+          token: ${{ secrets.BITBISON_TOKEN }}
+
+      - uses: actions/checkout@v7
+
+      - name: Install compilers
+        run: |
+          set -x
+
+          # Add explicit architecture for the default sources.
+          sudo sed -i '/^Architectures:/d; /^Types:/a Architectures: arm64' /etc/apt/sources.list.d/ubuntu.sources
+
+          # Add sources for the armhf libc headers and runtime.
+          sudo tee /etc/apt/sources.list.d/armhf.sources <<'EOF'
+          Types: deb
+          URIs: http://azure.ports.ubuntu.com/ubuntu-ports/
+          Suites: resolute resolute-updates resolute-security
+          Components: main
+          Architectures: armhf
+          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+          EOF
+
+          sudo dpkg --add-architecture armhf
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-linux-gnueabihf clang libc6:armhf libc6-dev:armhf
+
+          # Match Ubuntu GCC armhf's defaults. 
+          clang_bin_dir=$(dirname "$(realpath /usr/bin/clang)")
+          sudo tee "$clang_bin_dir"/arm-unknown-linux-gnueabihf.cfg <<'EOF'
+          -mthumb
+          -D_TIME_BITS=64
+          -D_FILE_OFFSET_BITS=64
+          EOF
+
+          sudo ln -s /usr/bin/clang /usr/local/bin/arm-linux-gnueabihf-clang
+
+      - name: Compiler version
+        run: arm-linux-gnueabihf-${{ matrix.cc }} --version
+
+      - name: Build
+        run: |
+          ./tools/ci-build.sh \
+            CC=arm-linux-gnueabihf-${{ matrix.cc }} AR=arm-linux-gnueabihf-ar \
+            --platform=arm --cores=2
 
       - name: Test
         run: make check
