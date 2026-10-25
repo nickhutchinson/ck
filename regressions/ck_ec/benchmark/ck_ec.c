@@ -104,9 +104,55 @@ static void wake64(const struct ck_ec_ops *ops, const uint64_t *address)
 }
 #else
 #include <linux/futex.h>
+#include <linux/types.h>
 #include <sys/syscall.h>
 #include <time.h>
 #include <unistd.h>
+
+#if defined(SYS_futex)
+struct futex_timespec {
+	__kernel_long_t tv_sec;
+	__kernel_long_t tv_nsec;
+};
+
+static struct futex_timespec *to_futex_timespec(const struct timespec *libc_ts,
+						struct futex_timespec *futex_ts)
+{
+	if (!libc_ts)
+		return NULL;
+
+	if (libc_ts->tv_sec != (__kernel_long_t)libc_ts->tv_sec) {
+		/* Overflowed __kernel_long_t. Clamp to 32 bits. */
+		futex_ts->tv_sec = libc_ts->tv_sec < 0 ? INT_MIN : INT_MAX;
+	} else {
+		futex_ts->tv_sec = (__kernel_long_t)libc_ts->tv_sec;
+	}
+	/* Assumed to be in [0, 999999999] */
+	futex_ts->tv_nsec = (__kernel_long_t)libc_ts->tv_nsec;
+
+	return futex_ts;
+}
+
+#elif defined(SYS_futex_time64)
+#define SYS_futex SYS_futex_time64
+struct futex_timespec {
+	int64_t tv_sec;
+	int64_t tv_nsec;
+};
+
+static struct futex_timespec *to_futex_timespec(struct timespec *libc_ts,
+						struct futex_timespec *futex_ts)
+{
+	if (!libc_ts)
+		return NULL;
+
+	futex_ts->tv_sec = libc_ts->tv_sec;
+	futex_ts->tv_nsec = libc_ts->tv_nsec;
+
+	return futex_ts;
+}
+
+#endif
 
 static int gettime(const struct ck_ec_ops *ops, struct timespec *out)
 {
@@ -119,9 +165,10 @@ static void wait32(const struct ck_ec_wait_state *state,
 		   const struct timespec *deadline)
 {
 	assert(state->ops == &test_ops);
-	syscall(SYS_futex, address,
-		FUTEX_WAIT_BITSET, expected, deadline,
-		NULL, FUTEX_BITSET_MATCH_ANY, 0);
+	struct futex_timespec futex_deadline;
+	syscall(SYS_futex, address, FUTEX_WAIT_BITSET, expected,
+		to_futex_timespec(deadline, &futex_deadline), NULL,
+		FUTEX_BITSET_MATCH_ANY, 0);
 	return;
 }
 
@@ -141,9 +188,10 @@ static void wait64(const struct ck_ec_wait_state *state,
 # error "__BYTE_ORDER__ must be defined."
 #endif
 
-	syscall(SYS_futex, low_half,
-		FUTEX_WAIT_BITSET, (uint32_t)expected, deadline,
-		NULL, FUTEX_BITSET_MATCH_ANY, 0);
+	struct futex_timespec futex_deadline;
+	syscall(SYS_futex, low_half, FUTEX_WAIT_BITSET, (uint32_t)expected,
+		to_futex_timespec(deadline, &futex_deadline), NULL,
+		FUTEX_BITSET_MATCH_ANY, 0);
 	return;
 }
 
