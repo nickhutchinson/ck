@@ -14,7 +14,6 @@ for arg do
         CORES=`echo "${arg}" | cut -d'=' -f2`
     fi
 done
-ARGS="${@}"
 if [ -z "${CORES}" ]; then
     # `--cores` not provided, attempt to determine it using appropriate utilities
     if command -v nproc; then
@@ -25,11 +24,11 @@ if [ -z "${CORES}" ]; then
         CORES=`sysctl -n hw.ncpu`
     fi
     if [ ! -z "${CORES}" ]; then
-        ARGS="${ARGS} --cores=${CORES}"
+        set -- "$@" "--cores=${CORES}"
     fi
 fi
 
 export CFLAGS="-DITERATE=400 -DPAIRS_S=100 -DITERATIONS=24 -DSTEPS=10000"
-./configure ${ARGS}
+./configure "$@"
 
 make -j${CORES}
