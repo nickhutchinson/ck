@@ -163,7 +163,8 @@ reader_work(void *arg)
 	 * list after ck_epoch_unregister, where a concurrent barrier
 	 * scans it.
 	 */
-	local_record = malloc(sizeof(*local_record));
+	local_record = common_aligned_alloc(common_alignof(ck_epoch_record_t),
+	    sizeof(*local_record));
 	if (local_record == NULL)
 		abort();
 
